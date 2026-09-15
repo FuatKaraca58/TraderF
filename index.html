@@ -146,6 +146,17 @@ body{margin:0;overflow-x:hidden;background:var(--bg);font:12px Arial,sans-serif;
 }
 </style>
 
+
+<style>
+/* V25 mobil düzeltme */
+@media (max-width:760px){
+  /* Emir defterini mobilde 18px sağa al */
+  .bookWrap{padding-left:18px!important}
+  /* Mobilde taşmayı engelle */
+  #ladder{max-width:calc(100vw - 24px)!important}
+}
+</style>
+
 </head>
 <body>
 <div class="top" style="display:flex;align-items:center;flex-wrap:wrap;gap:4px"><b>TraderF — <span id="activeSymbolTitle">SISE</span></b><span id="status"></span>
@@ -169,7 +180,7 @@ body{margin:0;overflow-x:hidden;background:var(--bg);font:12px Arial,sans-serif;
 </section>
 
 <section class="panel chartPanel" style="width:680px;height:548px">
-<div class="head">2 - GÜN İÇİ / 40 MUM / FİYAT <button id="liveBtn" type="button">CANLI →</button></div>
+<div class="head">2 - GÜN İÇİ / 30 MUM / FİYAT <button id="liveBtn" type="button">CANLI →</button></div>
 <div class="right">
  <div class="meta">
   <span id="mBid">Bid:-</span><span id="mAsk">Ask:-</span><span id="mMid">Mid:-</span>
@@ -189,7 +200,7 @@ const CHART={
   candleMaxWidth:20
 };
 let current=null,chartDay=[];
-const VISIBLE_CANDLES=40;
+const VISIBLE_CANDLES=30;
 let chartOffset=0; // 0 = canlı/son 40; pozitif = geçmişe git
 let activeSymbol="SISE";
 let dayData=null;
@@ -403,7 +414,7 @@ function renderChart(){
    C.appendChild(l);
  }
 
- // Ekranda aynı anda en fazla 40 mum görünür; günün geri kalanı geçmişte tutulur.
+ // Ekranda aynı anda en fazla 30 mum görünür; günün geri kalanı geçmişte tutulur.
  const cw=Math.max(
    8,
    Math.min(
