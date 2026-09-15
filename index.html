@@ -7,7 +7,7 @@
 <style>
 :root{--buy:#0b9850;--sell:#d2171c;--blue:#dff0fa;--grid:#e3e6e9;--bg:#f5f6f7}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);font:12px Arial,sans-serif;color:#222;overflow:auto}
+body{margin:0;overflow-x:hidden;background:var(--bg);font:12px Arial,sans-serif;color:#222;overflow:auto}
 .top{height:30px;display:flex;align-items:center;gap:8px;padding:0 5px;background:#fff;border-bottom:1px solid #bbb}
 .top b{font-size:14px}#status{margin-left:auto;color:#666}
 .main{display:flex;align-items:flex-start;gap:4px;padding:4px;width:max-content;max-width:100vw}
@@ -25,8 +25,8 @@ body{margin:0;background:var(--bg);font:12px Arial,sans-serif;color:#222;overflo
 .moveArrow{font-size:18px;line-height:18px}
 @keyframes pop{from{transform:scale(.65);opacity:0}to{transform:scale(1);opacity:1}}
 
-.bookWrap{height:100%;display:flex;align-items:flex-start;padding-left:162px;padding-right:2px;padding-top:3px}
-#ladder{width:342px;display:grid;grid-template-columns:129px 72px 129px;grid-auto-rows:20px;column-gap:2px;align-items:center}
+.bookWrap{height:100%;display:flex;align-items:flex-start;padding-left:42px;padding-right:2px;padding-top:3px}
+#ladder{width:442px;display:grid;grid-template-columns:179px 72px 179px;grid-auto-rows:20px;column-gap:2px;align-items:center}
 .price{height:20px;display:flex;align-items:center;justify-content:center;border:1px solid #aaa;background:#fafafa;font-weight:700}
 .price.ask{background:#fde9e9}.price.bid{background:#e8f7ed}
 .barcell{height:17px;position:relative;background:#fbfbfb;overflow:hidden}
@@ -42,7 +42,7 @@ body{margin:0;background:var(--bg);font:12px Arial,sans-serif;color:#222;overflo
 .totalSpacer{height:20px}
 
 /* SAĞ */
-.right{height:472px;width:455px;display:flex;flex-direction:column}
+.right{height:523px;width:680px;display:flex;flex-direction:column}
 .meta{height:24px;display:flex;align-items:center;gap:6px;padding:0 4px;border-bottom:1px solid #eee;white-space:nowrap;font-size:11px}
 #chart{position:relative;flex:1;min-height:300px;overflow:hidden}
 .grid{position:absolute;left:43px;right:2px;border-top:1px solid var(--grid)}
@@ -85,14 +85,14 @@ body{margin:0;background:var(--bg);font:12px Arial,sans-serif;color:#222;overflo
   .dr{grid-template-columns:40px 1fr}
   .moveBox{left:2px;top:142px;width:140px}
   .bookWrap{
-    padding-left:146px;
+    padding-left:26px;
     padding-right:2px;
     justify-content:flex-start;
   }
   #ladder{
-    width:calc(100vw - 154px);
-    max-width:342px;
-    grid-template-columns:minmax(82px,1fr) 62px minmax(82px,1fr);
+    width:calc(100vw - 104px);
+    max-width:442px;
+    grid-template-columns:minmax(107px,1fr) 62px minmax(107px,1fr);
   }
   .right{
     width:100%;
@@ -107,10 +107,10 @@ body{margin:0;background:var(--bg);font:12px Arial,sans-serif;color:#222;overflo
 @media (max-width: 430px){
   .dir{width:116px}
   .moveBox{width:114px}
-  .bookWrap{padding-left:120px}
+  .bookWrap{padding-left:0px}
   #ladder{
-    width:calc(100vw - 128px);
-    grid-template-columns:minmax(70px,1fr) 58px minmax(70px,1fr);
+    width:calc(100vw - 78px);
+    grid-template-columns:minmax(95px,1fr) 58px minmax(95px,1fr);
   }
   .qty,.totalLabel,.far{font-size:9px}
   .price{font-size:10px}
@@ -118,7 +118,7 @@ body{margin:0;background:var(--bg);font:12px Arial,sans-serif;color:#222;overflo
 }
 
 
-.symbolSelect{margin-left:10px;height:24px;border:1px solid #9aa5b1;background:#fff;font-weight:700;font-size:11px;padding:0 24px 0 6px}
+.symbolSelect{display:inline-block!important;visibility:visible!important;margin-left:10px;height:24px;min-width:90px;border:1px solid #667788;background:#fff;font-weight:700;font-size:11px;padding:0 24px 0 6px;position:relative;z-index:50}
 .symbolStatus{margin-left:6px;font-size:10px;color:#666}
 @media(max-width:760px){
  .symbolSelect{height:28px;font-size:12px;max-width:120px}
@@ -128,10 +128,27 @@ body{margin:0;background:var(--bg);font:12px Arial,sans-serif;color:#222;overflo
 .dayInfo{display:inline-flex;gap:7px;align-items:center;margin-left:8px;font-size:11px;font-weight:700}
 .dayInfo .pos{color:#078c47}.dayInfo .neg{color:#d2141b}.dayInfo .na{color:#777}
 @media(max-width:760px){.dayInfo{font-size:10px;gap:4px;margin-left:4px}}
+
+#liveBtn{float:right;height:17px;padding:0 6px;margin-top:-1px;border:1px solid #9aa5b1;background:#fff;font:bold 9px Arial;cursor:pointer}
+#liveBtn.away{background:#fff3cd;color:#7a5600;border-color:#d8bd65}
+#chart{touch-action:pan-y;cursor:grab}
+#chart.dragging{cursor:grabbing}
 </style>
+
+<style>
+/* V23 desktop: daha geniş mumlar; mobil: ekran genişliğine dön */
+@media (min-width:761px){
+  .chartPanel{width:680px!important}
+  .right{width:680px!important}
+}
+@media (max-width:760px){
+  .chartPanel,.right{width:100%!important;max-width:100%!important}
+}
+</style>
+
 </head>
 <body>
-<div class="top"><b>TraderF — <span id="activeSymbolTitle">SISE</span></b><span id="status"></span>
+<div class="top" style="display:flex;align-items:center;flex-wrap:wrap;gap:4px"><b>TraderF — <span id="activeSymbolTitle">SISE</span></b><span id="status"></span>
 <select id="symbolSelect" class="symbolSelect" title="Hisse seç"></select>
 <span id="symbolStatus" class="symbolStatus"></span>
 <span id="dayInfo" class="dayInfo"><span id="prevCloseText">ÖK: -</span><span id="dayPctText" class="na">Günlük: -</span></span>
@@ -151,8 +168,8 @@ body{margin:0;background:var(--bg);font:12px Arial,sans-serif;color:#222;overflo
 </div>
 </section>
 
-<section class="panel chartPanel" style="width:455px">
-<div class="head">2 - SON 20 DAKİKA / FİYAT</div>
+<section class="panel chartPanel" style="width:680px;height:548px">
+<div class="head">2 - GÜN İÇİ / 40 MUM / FİYAT <button id="liveBtn" type="button">CANLI →</button></div>
 <div class="right">
  <div class="meta">
   <span id="mBid">Bid:-</span><span id="mAsk">Ask:-</span><span id="mMid">Mid:-</span>
@@ -171,7 +188,9 @@ const CHART={
   verticalPadTicks:1, // üst/alt boşluk: kaç kademe
   candleMaxWidth:20
 };
-let current=null,chart20=[];
+let current=null,chartDay=[];
+const VISIBLE_CANDLES=40;
+let chartOffset=0; // 0 = canlı/son 40; pozitif = geçmişe git
 let activeSymbol="SISE";
 let dayData=null;
 let currentStreams=[];
@@ -314,7 +333,18 @@ function renderBook(){
 
 function renderChart(){
  const C=$("chart");C.innerHTML="";
- const raw=(chart20||[]).slice(-20);if(!raw.length||!current)return;
+ const all=(chartDay||[]).filter(Boolean);
+ if(!all.length||!current)return;
+ const maxOffset=Math.max(0,all.length-VISIBLE_CANDLES);
+ chartOffset=Math.max(0,Math.min(chartOffset,maxOffset));
+ const end=Math.max(0,all.length-chartOffset);
+ const start=Math.max(0,end-VISIBLE_CANDLES);
+ const raw=all.slice(start,end);
+ const liveBtn=document.getElementById("liveBtn");
+ if(liveBtn){
+   liveBtn.classList.toggle("away",chartOffset>0);
+   liveBtn.textContent=chartOffset>0?`CANLI → (${chartOffset})`:"CANLI →";
+ }
 
  // Görsel mum sürekliliği: her yeni mum önceki mumun kapanışından açılır.
  const a=raw.map((x,i)=>{
@@ -373,12 +403,12 @@ function renderChart(){
    C.appendChild(l);
  }
 
- // 20 mum + fiyat etiketi bittiği yerde grafik biter.
+ // Ekranda aynı anda en fazla 40 mum görünür; günün geri kalanı geçmişte tutulur.
  const cw=Math.max(
    8,
    Math.min(
      CHART.candleMaxWidth,
-     Math.floor(pw/20)
+     Math.floor(pw/VISIBLE_CANDLES)
    )
  );
 
@@ -416,7 +446,9 @@ function renderChart(){
       od>0?"pos":od<0?"neg":"zero"
    );
    d.textContent=signed(od);
-   d.style.left=`${xx-3}px`;
+   // Emir yönü label'ını mumun tam yatay merkezine oturt.
+   // Label genişliği 26px olduğu için merkez = mum merkezi - 13px.
+   d.style.left=`${xx+Math.floor(cw/2)-13}px`;
    d.style.top=od>=0
       ? `${yh-14}px`
       : `${yl+1}px`;
@@ -570,6 +602,7 @@ async function loadSymbols(){
 }
 
 
+
 function renderDayInfo(){
   const pc=Number(dayData?.previousClose);
   const px=Number(current?.mid ?? current?.bestBid ?? current?.bestAsk);
@@ -593,10 +626,12 @@ function renderDayInfo(){
 }
 
 async function bindSymbol(sym){
+  const chartEl=document.getElementById("chart");
+  if(chartEl) chartEl.innerHTML="";
   if(!sym)return;
   activeSymbol=sym;
   closeSymbolStreams();
-  current=null;chart20=[];dayData=null;
+  current=null;chartDay=[];dayData=null;chartOffset=0;
   lastLadderBid=null;lastLadderTick=null;
 
   const title=document.getElementById("activeSymbolTitle");
@@ -605,11 +640,12 @@ async function bindSymbol(sym){
   try{
     const [rc,rg,rd]=await Promise.all([
       fetch(`${DBROOT}/BIST/${encodeURIComponent(sym)}/current.json`),
-      fetch(`${DBROOT}/BIST/${encodeURIComponent(sym)}/chart20.json`),
+      fetch(`${DBROOT}/BIST/${encodeURIComponent(sym)}/chartDay.json`),
       fetch(`${DBROOT}/BIST/${encodeURIComponent(sym)}/day.json`)
     ]);
     current=await rc.json();
-    chart20=(await rg.json())||[];
+    const dayChart=await rg.json();
+    chartDay=Array.isArray(dayChart)?dayChart.filter(Boolean):[];
     dayData=await rd.json();
     renderBook();renderDayInfo();renderChart();
   }catch(e){}
@@ -620,8 +656,10 @@ async function bindSymbol(sym){
     renderBook();renderDayInfo();renderChart();
   });
 
-  openSymbolStream("chart20",(d,path)=>{
-    chart20=applyPartial(chart20,d,path)||[];
+  openSymbolStream("chartDay",(d,path)=>{
+    const wasLive=(chartOffset===0);
+    chartDay=applyPartial(chartDay,d,path)||[];
+    if(wasLive) chartOffset=0;
     renderChart();
   });
 
@@ -633,7 +671,56 @@ async function bindSymbol(sym){
 
 }
 
+
+function moveChartHistory(delta){
+  const maxOffset=Math.max(0,(chartDay?.length||0)-VISIBLE_CANDLES);
+  chartOffset=Math.max(0,Math.min(maxOffset,chartOffset+delta));
+  renderChart();
+}
+
+function setupChartNavigation(){
+  const C=document.getElementById("chart");
+  const live=document.getElementById("liveBtn");
+  if(live) live.addEventListener("click",()=>{chartOffset=0;renderChart();});
+  if(!C)return;
+
+  // Mouse wheel: yukarı = geçmiş, aşağı = canlıya doğru.
+  C.addEventListener("wheel",e=>{
+    if(Math.abs(e.deltaY)<Math.abs(e.deltaX)) return;
+    e.preventDefault();
+    moveChartHistory(e.deltaY>0?5:-5);
+  },{passive:false});
+
+  let down=false,lastX=0,carry=0;
+  const start=x=>{down=true;lastX=x;carry=0;C.classList.add("dragging");};
+  const move=x=>{
+    if(!down)return;
+    const dx=x-lastX; lastX=x; carry+=dx;
+    const step=12;
+    if(Math.abs(carry)>=step){
+      const n=Math.trunc(carry/step);
+      // Parmağı/mouse'u sağa sürüklemek = daha eski mumlar.
+      moveChartHistory(n);
+      carry-=n*step;
+    }
+  };
+  const stop=()=>{down=false;C.classList.remove("dragging");};
+
+  C.addEventListener("mousedown",e=>start(e.clientX));
+  window.addEventListener("mousemove",e=>move(e.clientX));
+  window.addEventListener("mouseup",stop);
+
+  C.addEventListener("touchstart",e=>{
+    if(e.touches.length===1)start(e.touches[0].clientX);
+  },{passive:true});
+  C.addEventListener("touchmove",e=>{
+    if(e.touches.length===1)move(e.touches[0].clientX);
+  },{passive:true});
+  C.addEventListener("touchend",stop,{passive:true});
+}
+
 document.addEventListener("DOMContentLoaded",()=>{
+  setupChartNavigation();
   const sel=document.getElementById("symbolSelect");
   if(sel)sel.addEventListener("change",()=>bindSymbol(sel.value));
   loadSymbols().then(()=>{
