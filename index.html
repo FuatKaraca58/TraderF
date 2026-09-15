@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TraderF Multi</title>
+<style>
+:root{--buy:#0b9850;--sell:#d2171c;--blue:#dff0fa;--grid:#e3e6e9;--bg:#f5f6f7}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font:12px Arial,sans-serif;color:#222;overflow:auto}
+.top{height:30px;display:flex;align-items:center;gap:8px;padding:0 5px;background:#fff;border-bottom:1px solid #bbb}
+.top b{font-size:14px}#status{margin-left:auto;color:#666}
+.main{display:flex;align-items:flex-start;gap:4px;padding:4px;width:max-content;max-width:100vw}
+.panel{position:relative;background:#fff;border:1px solid #b8bdc3;overflow:hidden;flex:none}
+.head{height:23px;padding:4px 6px;font-weight:700;border-bottom:1px solid #ddd;background:#fafafa}
+
+/* SOL */
+.left{position:relative;height:523px;width:510px;overflow:visible}
+.dir{position:absolute;left:2px;top:3px;width:158px;background:var(--blue);border:1px solid #9bb8c9;padding:5px;z-index:2}
+.dir b{display:block;margin-bottom:4px}.dr{display:grid;grid-template-columns:49px 1fr;gap:3px;margin:3px 0;align-items:center}
+.dv{background:var(--blue);border:1px solid #9fb7c6;padding:3px;text-align:center;font-weight:700}
+.moveBox{position:absolute;left:3px;top:142px;width:154px;min-height:38px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:4px;z-index:3;pointer-events:none}
+.moveBadge{height:30px;min-width:34px;padding:2px 5px;border:1px solid currentColor;background:#fff;display:flex;align-items:center;justify-content:center;gap:3px;font-weight:700;font-size:12px;animation:pop .15s ease-out}
+.moveBadge.up{color:#078c47}.moveBadge.down{color:#d2141b}
+.moveArrow{font-size:18px;line-height:18px}
+@keyframes pop{from{transform:scale(.65);opacity:0}to{transform:scale(1);opacity:1}}
+
+.bookWrap{height:100%;display:flex;align-items:flex-start;padding-left:162px;padding-right:2px;padding-top:3px}
+#ladder{width:342px;display:grid;grid-template-columns:129px 72px 129px;grid-auto-rows:20px;column-gap:2px;align-items:center}
+.price{height:20px;display:flex;align-items:center;justify-content:center;border:1px solid #aaa;background:#fafafa;font-weight:700}
+.price.ask{background:#fde9e9}.price.bid{background:#e8f7ed}
+.barcell{height:17px;position:relative;background:#fbfbfb;overflow:hidden}
+.bar{position:absolute;top:2px;height:13px}
+.barcell.buy .bar{right:0;background:var(--buy)}.barcell.sell .bar{left:0;background:var(--sell)}
+.qty{font-size:10px;font-weight:700;white-space:nowrap}.qty.buy{color:#08713d;text-align:left}.qty.sell{color:#b80e13;text-align:right}
+.far{height:20px;border:1px solid #aaa;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px}
+.far.buy{background:#eef9f2;color:#08713d}.far.sell{background:#fceeee;color:#b80e13}
+.totalLabel{height:20px;border:1px solid #333;background:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;white-space:nowrap}
+.totalLabel.buy{color:#08713d}
+.totalLabel.sell{color:#d00}
+.totalLabel.strong{font-weight:700}
+.totalSpacer{height:20px}
+
+/* SAĞ */
+.right{height:472px;width:455px;display:flex;flex-direction:column}
+.meta{height:24px;display:flex;align-items:center;gap:6px;padding:0 4px;border-bottom:1px solid #eee;white-space:nowrap;font-size:11px}
+#chart{position:relative;flex:1;min-height:300px;overflow:hidden}
+.grid{position:absolute;left:43px;right:2px;border-top:1px solid var(--grid)}
+.ylabel{position:absolute;left:0;width:39px;text-align:right;font-size:10px;color:#666;transform:translateY(-50%)}
+.wick{position:absolute;width:1px;background:#444}
+.candle{position:absolute;min-height:3px}.candle.up{background:var(--buy)}.candle.down{background:var(--sell)}.candle.flat{background:#666}
+.od{position:absolute;text-align:center;font-size:10px;font-weight:700;width:26px;background:transparent}.od.pos{color:green}.od.neg{color:#d00}.od.zero{color:#555}
+.tm{position:absolute;bottom:3px;font-size:9px;color:#666;transform:translateX(-50%)}
+.last{position:absolute;font-size:10px;font-weight:700;padding:1px 3px;color:white;border-radius:2px;white-space:nowrap}.last.up{background:var(--buy)}.last.down{background:var(--sell)}
+.main{grid-template-columns:1fr;height:auto}.panel{height:520px}}
+
+/* TELEFON / DAR EKRAN */
+.bookPanel{height:548px !important}
+@media (max-width: 760px){
+  body{overflow:auto}
+  .top{position:sticky;top:0;z-index:20}
+  .main{
+    display:flex;
+    flex-direction:column;
+    width:100%;
+    max-width:none;
+    gap:4px;
+    padding:3px;
+  }
+  .bookPanel,.chartPanel{
+    width:100% !important;
+    max-width:100%;
+  }
+  .left{
+    width:100%;
+    height:523px;
+    overflow:visible;
+  }
+  .dir{
+    left:2px;
+    top:3px;
+    width:142px;
+    font-size:10px;
+  }
+  .dr{grid-template-columns:40px 1fr}
+  .moveBox{left:2px;top:142px;width:140px}
+  .bookWrap{
+    padding-left:146px;
+    padding-right:2px;
+    justify-content:flex-start;
+  }
+  #ladder{
+    width:calc(100vw - 154px);
+    max-width:342px;
+    grid-template-columns:minmax(82px,1fr) 62px minmax(82px,1fr);
+  }
+  .right{
+    width:100%;
+    height:390px;
+  }
+  .meta{
+    overflow-x:auto;
+    font-size:10px;
+  }
+  #chart{min-height:340px}
+}
+@media (max-width: 430px){
+  .dir{width:116px}
+  .moveBox{width:114px}
+  .bookWrap{padding-left:120px}
+  #ladder{
+    width:calc(100vw - 128px);
+    grid-template-columns:minmax(70px,1fr) 58px minmax(70px,1fr);
+  }
+  .qty,.totalLabel,.far{font-size:9px}
+  .price{font-size:10px}
+  .right{height:365px}
+}
+
+
+.symbolSelect{margin-left:10px;height:24px;border:1px solid #9aa5b1;background:#fff;font-weight:700;font-size:11px;padding:0 24px 0 6px}
+.symbolStatus{margin-left:6px;font-size:10px;color:#666}
+@media(max-width:760px){
+ .symbolSelect{height:28px;font-size:12px;max-width:120px}
+ .symbolStatus{display:none}
+}
+
+.dayInfo{display:inline-flex;gap:7px;align-items:center;margin-left:8px;font-size:11px;font-weight:700}
+.dayInfo .pos{color:#078c47}.dayInfo .neg{color:#d2141b}.dayInfo .na{color:#777}
+@media(max-width:760px){.dayInfo{font-size:10px;gap:4px;margin-left:4px}}
+</style>
+</head>
+<body>
+<div class="top"><b>TraderF — <span id="activeSymbolTitle">SISE</span></b><span id="status"></span>
+<select id="symbolSelect" class="symbolSelect" title="Hisse seç"></select>
+<span id="symbolStatus" class="symbolStatus"></span>
+<span id="dayInfo" class="dayInfo"><span id="prevCloseText">ÖK: -</span><span id="dayPctText" class="na">Günlük: -</span></span>
+</div>
+<div class="main">
+<section class="panel bookPanel" style="width:510px;height:548px">
+<div class="head">1 - EMİR DERİNLİK TAKİP</div>
+<div class="left">
+  <div class="dir">
+    <b>KALICI YÖN</b>
+    <div class="dr"><span>ÖNCEKİ</span><span id="dPrev" class="dv">-</span></div>
+    <div class="dr"><span>ŞİMDİ</span><span id="dNow" class="dv">-</span></div>
+    <div class="dr"><span id="dDiff">FARK -</span><span id="dTrend" class="dv">-</span></div>
+  </div>
+  <div id="moveBox" class="moveBox"></div>
+  <div class="bookWrap"><div id="ladder"></div></div>
+</div>
+</section>
+
+<section class="panel chartPanel" style="width:455px">
+<div class="head">2 - SON 20 DAKİKA / FİYAT</div>
+<div class="right">
+ <div class="meta">
+  <span id="mBid">Bid:-</span><span id="mAsk">Ask:-</span><span id="mMid">Mid:-</span>
+  <span id="mOrder">Emir:-</span><span id="mTime">-</span>
+ </div>
+ <div id="chart"></div>
+</div>
+</section>
+</div>
+
+<script>
+const BASE="https://traderf-a35e5-default-rtdb.europe-west1.firebasedatabase.app/BIST/SISE";
+
+const CHART={
+  axisTickStep:1,     // 1 = her fiyat kademesi, 2 = iki kademede bir, 3 = üç kademede bir
+  verticalPadTicks:1, // üst/alt boşluk: kaç kademe
+  candleMaxWidth:20
+};
+let current=null,chart20=[];
+let activeSymbol="SISE";
+let dayData=null;
+let currentStreams=[];
+let symbolListTimer=null;
+let lastLadderBid=null,lastLadderTick=null;
+
+function showLadderMove(steps){
+ const box=$("moveBox");
+ const b=document.createElement("div");
+ b.className="moveBadge "+(steps>0?"up":"down");
+ b.innerHTML=`<span class="moveArrow">${steps>0?"↑":"↓"}</span><span>${steps>0?"+":""}${steps}</span>`;
+ box.appendChild(b);
+ setTimeout(()=>{b.style.opacity="0";b.style.transition="opacity .18s";setTimeout(()=>b.remove(),180)},1820);
+}
+function detectLadderMove(){
+ if(!current)return;
+ const bid=Number(current.bestBid),tick=Number(current.tick);
+ if(!Number.isFinite(bid)||!Number.isFinite(tick)||tick<=0)return;
+ if(lastLadderBid!==null){
+   const steps=Math.round((bid-lastLadderBid)/(lastLadderTick||tick));
+   if(steps)showLadderMove(steps);
+ }
+ lastLadderBid=bid;lastLadderTick=tick;
+}
+const $=id=>document.getElementById(id);
+const fmtP=v=>Number(v??0).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:3});
+const fmtQ=v=>Math.round(Number(v??0)).toLocaleString("tr-TR");
+const signed=v=>{v=Number(v??0);if(Object.is(v,-0))v=0;return v>0?`+${Math.round(v)}`:`${Math.round(v)}`};
+
+function stream(path,onData){
+ const es=new EventSource(`${BASE}/${path}.json`);
+ es.addEventListener("put",e=>{const m=JSON.parse(e.data);if(m.path==="/")onData(m.data)});
+ es.addEventListener("patch",e=>{const m=JSON.parse(e.data);onData(m.data)});
+ es.onopen=()=>{$("live").textContent="● Realtime bağlı"};
+ es.onerror=()=>{$("live").textContent="Bağlantı yenileniyor…"};
+ return es;
+}
+
+function renderBook(){
+ if(!current)return;
+ const buy=current.buy||[],sell=current.sell||[],L=$("ladder");L.innerHTML="";
+ const maxQty=Math.max(1,...buy.map(x=>+x.qty||0),...sell.map(x=>+x.qty||0));
+
+ const visBuyQty=buy.reduce((s,x)=>s+(+x.qty||0),0);
+ const visSellQty=sell.reduce((s,x)=>s+(+x.qty||0),0);
+
+ const visBuyAmt=buy.reduce((s,x)=>s+(+x.qty||0)*(+x.price||0),0);
+ const visSellAmt=sell.reduce((s,x)=>s+(+x.qty||0)*(+x.price||0),0);
+
+ const visBuyAvg=visBuyQty?visBuyAmt/visBuyQty:0;
+ const visSellAvg=visSellQty?visSellAmt/visSellQty:0;
+
+ const remBuyQty=+current.remaining?.buyQty||0;
+ const remSellQty=+current.remaining?.sellQty||0;
+ const remBuyAvg=+current.remaining?.buyAvg||0;
+ const remSellAvg=+current.remaining?.sellAvg||0;
+
+ const totalBuyQty=+current.totals?.buyQty || (visBuyQty+remBuyQty);
+ const totalSellQty=+current.totals?.sellQty || (visSellQty+remSellQty);
+ const totalBuyAvg=+current.totals?.buyAvg || (
+   totalBuyQty ? (visBuyAmt + remBuyQty*remBuyAvg)/totalBuyQty : 0
+ );
+ const totalSellAvg=+current.totals?.sellAvg || (
+   totalSellQty ? (visSellAmt + remSellQty*remSellAvg)/totalSellQty : 0
+ );
+
+ // SATIŞ: genel toplam -> görünmeyen -> görünen
+ // (laddera en yakın olan "görünen", ekran görüntündeki yapıya benzer)
+ const sg1=document.createElement("div"),
+       sg2=document.createElement("div"),
+       sellGen=document.createElement("div");
+ sellGen.className="totalLabel sell strong";
+ sellGen.textContent=`${fmtQ(totalSellQty)} @ ${fmtP(totalSellAvg)}`;
+ L.append(sg1,sg2,sellGen);
+
+ const si1=document.createElement("div"),
+       si2=document.createElement("div"),
+       sellHidden=document.createElement("div");
+ sellHidden.className="totalLabel sell";
+ sellHidden.textContent=`${fmtQ(remSellQty)} @ ${fmtP(remSellAvg)}`;
+ L.append(si1,si2,sellHidden);
+
+ const sv1=document.createElement("div"),
+       sv2=document.createElement("div"),
+       sellVisible=document.createElement("div");
+ sellVisible.className="totalLabel sell";
+ sellVisible.textContent=`${fmtQ(visSellQty)} @ ${fmtP(visSellAvg)}`;
+ L.append(sv1,sv2,sellVisible);
+
+ [...sell].reverse().forEach((r,i)=>{
+   const q=document.createElement("div");q.className="qty sell";q.textContent=fmtQ(r.qty);
+   const p=document.createElement("div");p.className="price"+(i===sell.length-1?" ask":"");p.textContent=fmtP(r.price);
+   const b=document.createElement("div");b.className="barcell sell";b.innerHTML=`<div class="bar" style="width:${Math.max(2,(r.qty/maxQty)*100)}%"></div>`;
+   L.append(q,p,b);
+ });
+
+ buy.forEach((r,i)=>{
+   const b=document.createElement("div");b.className="barcell buy";b.innerHTML=`<div class="bar" style="width:${Math.max(2,(r.qty/maxQty)*100)}%"></div>`;
+   const p=document.createElement("div");p.className="price"+(i===0?" bid":"");p.textContent=fmtP(r.price);
+   const q=document.createElement("div");q.className="qty buy";q.textContent=fmtQ(r.qty);
+   L.append(b,p,q);
+ });
+
+ // ALIŞ: görünen -> görünmeyen -> genel toplam
+ // (laddera en yakın olan "görünen")
+ const buyVisible=document.createElement("div"),
+       bv2=document.createElement("div"),
+       bv3=document.createElement("div");
+ buyVisible.className="totalLabel buy";
+ buyVisible.textContent=`${fmtQ(visBuyQty)} @ ${fmtP(visBuyAvg)}`;
+ L.append(buyVisible,bv2,bv3);
+
+ const buyHidden=document.createElement("div"),
+       bh2=document.createElement("div"),
+       bh3=document.createElement("div");
+ buyHidden.className="totalLabel buy";
+ buyHidden.textContent=`${fmtQ(remBuyQty)} @ ${fmtP(remBuyAvg)}`;
+ L.append(buyHidden,bh2,bh3);
+
+ const buyGen=document.createElement("div"),
+       bg2=document.createElement("div"),
+       bg3=document.createElement("div");
+ buyGen.className="totalLabel buy strong";
+ buyGen.textContent=`${fmtQ(totalBuyQty)} @ ${fmtP(totalBuyAvg)}`;
+ L.append(buyGen,bg2,bg3);
+
+ const d=current.direction||{};
+ $("dPrev").textContent=`${signed(d.previous)} ${d.previousText||""}`;
+ $("dNow").textContent=`${signed(d.current)} ${d.currentText||""}`;
+ $("dDiff").textContent=`FARK ${signed(d.difference)}`;
+ $("dTrend").textContent=d.trend||"-";
+
+ $("mBid").textContent=`Bid:${fmtP(current.bestBid)}`;
+ $("mAsk").textContent=`Ask:${fmtP(current.bestAsk)}`;
+ $("mMid").textContent=`Mid:${fmtP(current.mid)}`;
+ $("mOrder").textContent=`Emir:${signed(current.orderDirection)}`;
+ $("mTime").textContent=current.platformTime||"";
+ $("status").textContent=`snapshot ${current.snapshotId??"-"}`;
+}
+
+function renderChart(){
+ const C=$("chart");C.innerHTML="";
+ const raw=(chart20||[]).slice(-20);if(!raw.length||!current)return;
+
+ // Görsel mum sürekliliği: her yeni mum önceki mumun kapanışından açılır.
+ const a=raw.map((x,i)=>{
+   const z={...x};
+   const close=Number(z.close??z.price);
+   z.close=close;
+   z.open=i>0 ? Number(raw[i-1].close??raw[i-1].price) : Number(z.open??close);
+   z.high=Math.max(Number(z.high??close),z.open,close);
+   z.low=Math.min(Number(z.low??close),z.open,close);
+   return z;
+ });
+
+ const W=C.clientWidth,H=C.clientHeight;
+ const left=43,right=42,top=10,bottom=22;
+ const tick=Math.max(Number(current.tick)||.02,.000001);
+
+ const vals=[];
+ a.forEach(x=>{
+   vals.push(
+     Number(x.low??x.close),
+     Number(x.high??x.close)
+   );
+ });
+
+ // Canlı fiyat da eksen hesabına dahil.
+ const livePrice=Number(current.mid ?? current.bestBid ?? current.bestAsk);
+ if(Number.isFinite(livePrice)) vals.push(livePrice);
+
+ // Otomatik dikey eksen: gerçek aralığın üstünde ve altında 2 kademe boşluk.
+ let min=Math.floor((Math.min(...vals)/tick)+1e-9)*tick-2*tick;
+ let max=Math.ceil((Math.max(...vals)/tick)-1e-9)*tick+2*tick;
+
+ if(max<=min)max=min+tick*6;
+
+ const ph=Math.max(80,H-top-bottom);
+ const pw=Math.max(100,W-left-right);
+ const y=v=>top+(max-v)/(max-min)*ph;
+
+ // Dikey eksen sıklığı ayarlanabilir.
+ // axisTickStep=1 ise SISE 43,96 / 43,98 / 44,00 ...
+ const totalTicks=Math.round((max-min)/tick);
+
+ for(let i=0;i<=totalTicks;i+=CHART.axisTickStep){
+   const v=max-i*tick;
+   const yy=y(v);
+
+   const g=document.createElement("div");
+   g.className="grid";
+   g.style.top=`${yy}px`;
+   C.appendChild(g);
+
+   const l=document.createElement("div");
+   l.className="ylabel";
+   l.style.top=`${yy}px`;
+   l.textContent=fmtP(v);
+   C.appendChild(l);
+ }
+
+ // 20 mum + fiyat etiketi bittiği yerde grafik biter.
+ const cw=Math.max(
+   8,
+   Math.min(
+     CHART.candleMaxWidth,
+     Math.floor(pw/20)
+   )
+ );
+
+ const sx=left+1;
+
+ a.forEach((x,i)=>{
+   const o=Number(x.open??x.close);
+   const cl=Number(x.close);
+   const hi=Number(x.high??cl);
+   const lo=Number(x.low??cl);
+   const xx=sx+i*cw;
+
+   const yo=y(o),yc=y(cl),yh=y(hi),yl=y(lo);
+
+   const wick=document.createElement("div");
+   wick.className="wick";
+   wick.style.left=`${xx+Math.floor(cw/2)}px`;
+   wick.style.top=`${yh}px`;
+   wick.style.height=`${Math.max(2,yl-yh)}px`;
+   C.appendChild(wick);
+
+   const body=document.createElement("div");
+   body.className="candle "+(
+      cl>o?"up":cl<o?"down":"flat"
+   );
+   body.style.left=`${xx}px`;
+   body.style.width=`${Math.max(6,cw-1)}px`;
+   body.style.top=`${Math.min(yo,yc)}px`;
+   body.style.height=`${Math.max(3,Math.abs(yc-yo))}px`;
+   C.appendChild(body);
+
+   const od=Number(x.orderDirection)||0;
+   const d=document.createElement("div");
+   d.className="od "+(
+      od>0?"pos":od<0?"neg":"zero"
+   );
+   d.textContent=signed(od);
+   d.style.left=`${xx-3}px`;
+   d.style.top=od>=0
+      ? `${yh-14}px`
+      : `${yl+1}px`;
+   C.appendChild(d);
+
+   if(i===0||i===a.length-1||i%5===0){
+     const t=document.createElement("div");
+     t.className="tm";
+     t.style.left=`${xx+cw/2}px`;
+     t.textContent=
+       x.minuteKey||
+       String(x.time||"").slice(0,5);
+     C.appendChild(t);
+   }
+
+   if(i===a.length-1){
+     const lp=document.createElement("div");
+     lp.className="last "+(cl>=o?"up":"down");
+     lp.style.left=`${Math.min(W-right+2,xx+cw+3)}px`;
+     lp.style.top=`${yc-7}px`;
+     lp.textContent=fmtP(cl);
+     C.appendChild(lp);
+   }
+ });
+
+ // Önceki Kapanış referansı: eksen ölçeğini ASLA değiştirmez.
+ const prevClose=Number(dayData?.previousClose);
+ if(Number.isFinite(prevClose) && prevClose>0){
+   const ref=document.createElement("div");
+   ref.style.position="absolute";
+   ref.style.zIndex="20";
+   ref.style.font="bold 10px Arial";
+   ref.style.whiteSpace="nowrap";
+   ref.style.pointerEvents="none";
+   ref.style.left=`${left+5}px`;
+
+   if(prevClose>max){
+     // Önceki kapanış grafiğin üstünde:
+     // fiyat kapanışın altında -> kırmızı, ok yukarıyı gösterir.
+     ref.style.top=`${top+2}px`;
+     ref.style.color="#d2141b";
+     ref.textContent=`↑ Önceki Kapanış ${fmtP(prevClose)}`;
+     C.appendChild(ref);
+   }
+   else if(prevClose<min){
+     // Önceki kapanış grafiğin altında:
+     // fiyat kapanışın üstünde -> yeşil, ok aşağıyı gösterir.
+     ref.style.top=`${top+ph-14}px`;
+     ref.style.color="#078c47";
+     ref.textContent=`↓ Önceki Kapanış ${fmtP(prevClose)}`;
+     C.appendChild(ref);
+   }
+   else{
+     // Aralıktaysa gerçek fiyat seviyesinde kesikli yatay çizgi.
+     const py=y(prevClose);
+
+     const line=document.createElement("div");
+     line.style.position="absolute";
+     line.style.zIndex="18";
+     line.style.left=`${left}px`;
+     line.style.top=`${py}px`;
+     line.style.width=`${pw}px`;
+     line.style.borderTop="1px dashed #6b7280";
+     line.style.pointerEvents="none";
+     C.appendChild(line);
+
+     ref.style.top=`${Math.max(top,py-14)}px`;
+     ref.style.color="#4b5563";
+     ref.textContent=`Önceki Kapanış ${fmtP(prevClose)}`;
+     C.appendChild(ref);
+   }
+ }
+}
+
+/* Multi-symbol V13 uses bindSymbol() instead of fixed startup streams. */
+window.addEventListener("resize",renderChart);
+
+const DBROOT="https://traderf-a35e5-default-rtdb.europe-west1.firebasedatabase.app";
+
+function closeSymbolStreams(){
+  currentStreams.forEach(x=>{try{x.close()}catch(e){}});
+  currentStreams=[];
+}
+
+function openSymbolStream(path,onData){
+  const url=`${DBROOT}/BIST/${encodeURIComponent(activeSymbol)}/${path}.json`;
+  const es=new EventSource(url);
+  es.addEventListener("put",ev=>{
+    try{
+      const msg=JSON.parse(ev.data);
+      if(msg.path==="/"){
+        onData(msg.data);
+      }else{
+        // Partial Firebase patch: merge into existing object where practical.
+        onData(msg.data,msg.path);
+      }
+    }catch(e){}
+  });
+  es.addEventListener("patch",ev=>{
+    try{
+      const msg=JSON.parse(ev.data);
+      onData(msg.data,msg.path||"/");
+    }catch(e){}
+  });
+  currentStreams.push(es);
+  return es;
+}
+
+function applyPartial(base,data,path){
+  if(path==="/" || !path) return data;
+  const out=(base && typeof base==="object") ? structuredClone(base) : {};
+  const parts=path.split("/").filter(Boolean);
+  let p=out;
+  for(let i=0;i<parts.length-1;i++){
+    if(!p[parts[i]] || typeof p[parts[i]]!=="object") p[parts[i]]={};
+    p=p[parts[i]];
+  }
+  if(parts.length)p[parts.at(-1)]=data;
+  return out;
+}
+
+async function loadSymbols(){
+  try{
+    const r=await fetch(`${DBROOT}/BIST.json`);
+    const data=await r.json();
+    const symbols=Object.entries(data||{})
+      .filter(([k,v])=>v && typeof v==="object" && v.current)
+      .map(([k])=>k)
+      .sort((a,b)=>a.localeCompare(b,"tr"));
+
+    const sel=document.getElementById("symbolSelect");
+    if(!sel)return;
+    const previous=activeSymbol;
+    sel.innerHTML="";
+    symbols.forEach(s=>{
+      const o=document.createElement("option");
+      o.value=s;o.textContent=s;
+      sel.appendChild(o);
+    });
+
+    if(symbols.includes(previous)) sel.value=previous;
+    else if(symbols.length){
+      activeSymbol=symbols[0];
+      sel.value=activeSymbol;
+      bindSymbol(activeSymbol);
+    }
+
+    const st=document.getElementById("symbolStatus");
+    if(st)st.textContent=symbols.length?`${symbols.length} aktif hisse`:"Aktif hisse bekleniyor";
+  }catch(e){}
+}
+
+
+function renderDayInfo(){
+  const pc=Number(dayData?.previousClose);
+  const px=Number(current?.mid ?? current?.bestBid ?? current?.bestAsk);
+  const pcEl=document.getElementById("prevCloseText");
+  const pctEl=document.getElementById("dayPctText");
+
+  if(!Number.isFinite(pc) || pc<=0){
+    if(pcEl)pcEl.textContent="Önceki Kapanış: -";
+    if(pctEl){pctEl.textContent="Günlük: -";pctEl.className="na";}
+    return;
+  }
+
+  if(pcEl)pcEl.textContent=`Önceki Kapanış: ${pc.toFixed(2)}`;
+  if(Number.isFinite(px) && px>0){
+    const pct=(px/pc-1)*100;
+    if(pctEl){
+      pctEl.textContent=`Günlük: ${pct>=0?"+":""}${pct.toFixed(2)}%`;
+      pctEl.className=pct>0?"pos":pct<0?"neg":"na";
+    }
+  }
+}
+
+async function bindSymbol(sym){
+  if(!sym)return;
+  activeSymbol=sym;
+  closeSymbolStreams();
+  current=null;chart20=[];dayData=null;
+  lastLadderBid=null;lastLadderTick=null;
+
+  const title=document.getElementById("activeSymbolTitle");
+  if(title)title.textContent=sym;
+
+  try{
+    const [rc,rg,rd]=await Promise.all([
+      fetch(`${DBROOT}/BIST/${encodeURIComponent(sym)}/current.json`),
+      fetch(`${DBROOT}/BIST/${encodeURIComponent(sym)}/chart20.json`),
+      fetch(`${DBROOT}/BIST/${encodeURIComponent(sym)}/day.json`)
+    ]);
+    current=await rc.json();
+    chart20=(await rg.json())||[];
+    dayData=await rd.json();
+    renderBook();renderDayInfo();renderChart();
+  }catch(e){}
+
+  openSymbolStream("current",(d,path)=>{
+    current=applyPartial(current,d,path);
+    detectLadderMove();
+    renderBook();renderDayInfo();renderChart();
+  });
+
+  openSymbolStream("chart20",(d,path)=>{
+    chart20=applyPartial(chart20,d,path)||[];
+    renderChart();
+  });
+
+  openSymbolStream("day",(d,path)=>{
+    dayData=applyPartial(dayData,d,path);
+    renderDayInfo();
+    renderChart();
+  });
+
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  const sel=document.getElementById("symbolSelect");
+  if(sel)sel.addEventListener("change",()=>bindSymbol(sel.value));
+  loadSymbols().then(()=>{
+    const s=document.getElementById("symbolSelect");
+    if(s && s.value)bindSymbol(s.value);
+  });
+  symbolListTimer=setInterval(loadSymbols,5000);
+});
+
+</script>
+</body>
+</html>
