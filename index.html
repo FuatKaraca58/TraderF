@@ -157,6 +157,42 @@ body{margin:0;overflow-x:hidden;background:var(--bg);font:12px Arial,sans-serif;
 }
 </style>
 
+
+<style>
+/* V26 — mobil üst bar ve emir defteri yerleşimi */
+@media (max-width:760px){
+  /* Üst bar tek satıra zorlanmaz; 2. satır oluşursa yüksekliği de büyür. */
+  .top{
+    height:auto!important;
+    min-height:30px;
+    padding:4px 5px!important;
+    box-sizing:border-box;
+    align-content:center;
+    row-gap:3px!important;
+  }
+
+  /* Önceki kapanış / günlük değişim ikinci satıra düşerse kendi alanında kalır. */
+  .dayInfo{
+    flex-basis:100%;
+    margin-left:0!important;
+    min-height:14px;
+    justify-content:flex-end;
+    white-space:nowrap;
+  }
+
+  /* Mobilde emir defterini V25'e göre 20px daha sağa al. */
+  .bookWrap{
+    padding-left:38px!important;
+  }
+}
+
+@media (max-width:430px){
+  .bookWrap{
+    padding-left:38px!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="top" style="display:flex;align-items:center;flex-wrap:wrap;gap:4px"><b>TraderF — <span id="activeSymbolTitle">SISE</span></b><span id="status"></span>
