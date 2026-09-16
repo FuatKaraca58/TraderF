@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TraderF Multi</title>
+<title>TraderF Multi V27.1</title>
 <style>
 :root{--buy:#0b9850;--sell:#d2171c;--blue:#dff0fa;--grid:#e3e6e9;--bg:#f5f6f7}
 *{box-sizing:border-box}
@@ -193,6 +193,39 @@ body{margin:0;overflow-x:hidden;background:var(--bg);font:12px Arial,sans-serif;
 }
 </style>
 
+
+<style>
+/* V27 - Gerçekleşen işlemler + kurum net */
+.tradePanel{width:620px!important;height:548px!important}
+.tradeBody{height:523px;display:grid;grid-template-rows:245px 1fr;gap:3px;padding:3px}
+.tradeRecent,.brokerArea{border:1px solid #d5d9dd;overflow:hidden;background:#fff}
+.tradeSub{height:22px;padding:4px 6px;font-weight:700;background:#fafafa;border-bottom:1px solid #ddd}
+.tradeScroll{height:calc(100% - 22px);overflow:auto}
+.tradeTable{width:100%;border-collapse:collapse;font-size:10px}
+.tradeTable th{position:sticky;top:0;background:#f4f5f6;z-index:2}
+.tradeTable th,.tradeTable td{padding:3px 4px;border-bottom:1px solid #eee;white-space:nowrap;text-align:right}
+.tradeTable th:nth-child(3),.tradeTable td:nth-child(3),
+.tradeTable th:nth-child(4),.tradeTable td:nth-child(4){text-align:left}
+.brokerArea{display:grid;grid-template-columns:1fr 1fr;gap:3px;border:0;background:transparent}
+.brokerBox{border:1px solid #d5d9dd;overflow:hidden;background:#fff}
+.brokerBox.buyers .tradeSub{color:#08713d}.brokerBox.sellers .tradeSub{color:#b80e13}
+.brokerTable{width:100%;border-collapse:collapse;font-size:10px}
+.brokerTable th,.brokerTable td{padding:3px 4px;border-bottom:1px solid #eee;white-space:nowrap;text-align:right}
+.brokerTable th:first-child,.brokerTable td:first-child{text-align:left;max-width:130px;overflow:hidden;text-overflow:ellipsis}
+.netPos{color:#08713d;font-weight:700}.netNeg{color:#b80e13;font-weight:700}
+@media(max-width:760px){
+  .tradePanel{width:100%!important;max-width:100%!important;height:620px!important}
+  .tradeBody{height:595px;grid-template-rows:265px 1fr}
+  .brokerArea{grid-template-columns:1fr 1fr}
+}
+@media(max-width:430px){
+  .brokerArea{grid-template-columns:1fr}
+  .tradePanel{height:850px!important}
+  .tradeBody{height:825px;grid-template-rows:285px 1fr}
+  .brokerArea{grid-template-rows:1fr 1fr}
+}
+</style>
+
 </head>
 <body>
 <div class="top" style="display:flex;align-items:center;flex-wrap:wrap;gap:4px"><b>TraderF — <span id="activeSymbolTitle">SISE</span></b><span id="status"></span>
@@ -225,6 +258,41 @@ body{margin:0;overflow-x:hidden;background:var(--bg);font:12px Arial,sans-serif;
  <div id="chart"></div>
 </div>
 </section>
+
+<section class="panel tradePanel">
+<div class="head">3 - GERÇEKLEŞEN İŞLEMLER / KURUM NET</div>
+<div class="tradeBody">
+  <div class="tradeRecent">
+    <div class="tradeSub">SON 200 İŞLEM</div>
+    <div class="tradeScroll">
+      <table class="tradeTable">
+        <thead><tr><th>Saat</th><th>Fiyat</th><th>Miktar</th><th>Alıcı</th><th>Satıcı</th></tr></thead>
+        <tbody id="tradeRows"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="brokerArea">
+    <div class="brokerBox buyers">
+      <div class="tradeSub">NET ALICILAR</div>
+      <div class="tradeScroll">
+        <table class="brokerTable">
+          <thead><tr><th>Kurum</th><th>Alış</th><th>Satış</th><th>Net</th></tr></thead>
+          <tbody id="netBuyers"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="brokerBox sellers">
+      <div class="tradeSub">NET SATICILAR</div>
+      <div class="tradeScroll">
+        <table class="brokerTable">
+          <thead><tr><th>Kurum</th><th>Alış</th><th>Satış</th><th>Net</th></tr></thead>
+          <tbody id="netSellers"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
 </div>
 
 <script>
@@ -235,7 +303,7 @@ const CHART={
   verticalPadTicks:1, // üst/alt boşluk: kaç kademe
   candleMaxWidth:20
 };
-let current=null,chartDay=[];
+let current=null,chartDay=[],tradesRecent=[],brokerNet={};
 const VISIBLE_CANDLES=30;
 let chartOffset=0; // 0 = canlı/son 40; pozitif = geçmişe git
 let activeSymbol="SISE";
@@ -672,29 +740,74 @@ function renderDayInfo(){
   }
 }
 
+
+function renderTrades(){
+  const tb=document.getElementById("tradeRows");
+  if(!tb)return;
+  const a=(Array.isArray(tradesRecent)?tradesRecent:[]).filter(Boolean).slice(-200).reverse();
+  tb.innerHTML=a.map(t=>`<tr>
+    <td>${t.time||"-"}</td>
+    <td>${fmtP(t.price)}</td>
+    <td>${fmtQ(t.qty)}</td>
+    <td title="${t.buyer||""}">${t.buyer||"-"}</td>
+    <td title="${t.seller||""}">${t.seller||"-"}</td>
+  </tr>`).join("");
+}
+
+function renderBrokerNet(){
+  const entries=(Array.isArray(brokerNet)
+    ? brokerNet.filter(Boolean).map(x=>({
+        name:x?.name||"",
+        buy:Number(x?.buy)||0,
+        sell:Number(x?.sell)||0,
+        net:Number(x?.net)||0
+      }))
+    : Object.entries(brokerNet||{}).map(([name,x])=>({
+        name,buy:Number(x?.buy)||0,sell:Number(x?.sell)||0,net:Number(x?.net)||0
+      }))
+  ).filter(x=>x.name);
+  const buyers=entries.filter(x=>x.net>0).sort((a,b)=>b.net-a.net);
+  const sellers=entries.filter(x=>x.net<0).sort((a,b)=>a.net-b.net);
+
+  const row=(x,cls)=>`<tr>
+    <td title="${x.name}">${x.name}</td>
+    <td>${fmtQ(x.buy)}</td><td>${fmtQ(x.sell)}</td>
+    <td class="${cls}">${x.net>0?"+":""}${fmtQ(x.net)}</td>
+  </tr>`;
+
+  const b=document.getElementById("netBuyers"),s=document.getElementById("netSellers");
+  if(b)b.innerHTML=buyers.map(x=>row(x,"netPos")).join("");
+  if(s)s.innerHTML=sellers.map(x=>row(x,"netNeg")).join("");
+}
+
 async function bindSymbol(sym){
   const chartEl=document.getElementById("chart");
   if(chartEl) chartEl.innerHTML="";
   if(!sym)return;
   activeSymbol=sym;
   closeSymbolStreams();
-  current=null;chartDay=[];dayData=null;chartOffset=0;
+  current=null;chartDay=[];tradesRecent=[];brokerNet={};dayData=null;chartOffset=0;
   lastLadderBid=null;lastLadderTick=null;
 
   const title=document.getElementById("activeSymbolTitle");
   if(title)title.textContent=sym;
 
   try{
-    const [rc,rg,rd]=await Promise.all([
+    const [rc,rg,rd,rt,rn]=await Promise.all([
       fetch(`${DBROOT}/BIST/${encodeURIComponent(sym)}/current.json`),
       fetch(`${DBROOT}/BIST/${encodeURIComponent(sym)}/chartDay.json`),
-      fetch(`${DBROOT}/BIST/${encodeURIComponent(sym)}/day.json`)
+      fetch(`${DBROOT}/BIST/${encodeURIComponent(sym)}/day.json`),
+      fetch(`${DBROOT}/BIST/${encodeURIComponent(sym)}/tradesRecent.json`),
+      fetch(`${DBROOT}/BIST/${encodeURIComponent(sym)}/brokerNet.json`)
     ]);
     current=await rc.json();
     const dayChart=await rg.json();
     chartDay=Array.isArray(dayChart)?dayChart.filter(Boolean):[];
     dayData=await rd.json();
-    renderBook();renderDayInfo();renderChart();
+    const tr=await rt.json(),bn=await rn.json();
+    tradesRecent=Array.isArray(tr)?tr.filter(Boolean):[];
+    brokerNet=(bn&&typeof bn==="object")?bn:{};
+    renderBook();renderDayInfo();renderChart();renderTrades();renderBrokerNet();
   }catch(e){}
 
   openSymbolStream("current",(d,path)=>{
@@ -714,6 +827,16 @@ async function bindSymbol(sym){
     dayData=applyPartial(dayData,d,path);
     renderDayInfo();
     renderChart();
+  });
+
+  openSymbolStream("tradesRecent",(d,path)=>{
+    tradesRecent=applyPartial(tradesRecent,d,path)||[];
+    renderTrades();
+  });
+
+  openSymbolStream("brokerNet",(d,path)=>{
+    brokerNet=applyPartial(brokerNet,d,path)||{};
+    renderBrokerNet();
   });
 
 }
