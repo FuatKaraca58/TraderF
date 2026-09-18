@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TraderF Multi V27.1</title>
+<title>TraderF V36.5 Multi V30.12 LIVE VWAP FIX</title>
 <style>
 :root{--buy:#0b9850;--sell:#d2171c;--blue:#dff0fa;--grid:#e3e6e9;--bg:#f5f6f7}
 *{box-sizing:border-box}
@@ -121,6 +121,10 @@ body{margin:0;overflow-x:hidden;background:var(--bg);font:12px Arial,sans-serif;
 .symbolSelect{display:inline-block!important;visibility:visible!important;margin-left:10px;height:24px;min-width:90px;border:1px solid #667788;background:#fff;font-weight:700;font-size:11px;padding:0 24px 0 6px;position:relative;z-index:50}
 .symbolStatus{margin-left:6px;font-size:10px;color:#666}
 @media(max-width:760px){
+  .chartPanel{width:100%!important;max-width:100%!important;height:548px!important}
+  .tradeTable{font-size:9px}
+  .tradeTable th,.tradeTable td{padding:3px 2px}
+
  .symbolSelect{height:28px;font-size:12px;max-width:120px}
  .symbolStatus{display:none}
 }
@@ -201,18 +205,36 @@ body{margin:0;overflow-x:hidden;background:var(--bg);font:12px Arial,sans-serif;
 .tradeRecent,.brokerArea{border:1px solid #d5d9dd;overflow:hidden;background:#fff}
 .tradeSub{height:22px;padding:4px 6px;font-weight:700;background:#fafafa;border-bottom:1px solid #ddd}
 .tradeScroll{height:calc(100% - 22px);overflow:auto}
-.tradeTable{width:100%;border-collapse:collapse;font-size:10px}
+.tradeTable{width:100%;table-layout:fixed;border-collapse:collapse;font-size:10px}
+.tradeTable th:nth-child(1),.tradeTable td:nth-child(1){width:52px}
+.tradeTable th:nth-child(2),.tradeTable td:nth-child(2){width:55px}
+.tradeTable th:nth-child(3),.tradeTable td:nth-child(3){width:62px}
+.tradeTable th:nth-child(4),.tradeTable td:nth-child(4),
+.tradeTable th:nth-child(5),.tradeTable td:nth-child(5){
+  width:auto;text-align:left;overflow:hidden;text-overflow:ellipsis
+}
 .tradeTable th{position:sticky;top:0;background:#f4f5f6;z-index:2}
 .tradeTable th,.tradeTable td{padding:3px 4px;border-bottom:1px solid #eee;white-space:nowrap;text-align:right}
 .tradeTable th:nth-child(3),.tradeTable td:nth-child(3),
 .tradeTable th:nth-child(4),.tradeTable td:nth-child(4){text-align:left}
-.brokerArea{display:grid;grid-template-columns:1fr 1fr;gap:3px;border:0;background:transparent}
+.brokerArea{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr;gap:3px;border:0;background:transparent}
+.brokerControls{grid-column:1/-1;height:25px;display:flex;align-items:center;justify-content:center;gap:14px;border:1px solid #d5d9dd;background:#fafafa;font-size:11px;white-space:nowrap}
+.brokerControls label{display:inline-flex;align-items:center;gap:3px;cursor:pointer}
+.brokerControls input{margin:0}
 .brokerBox{border:1px solid #d5d9dd;overflow:hidden;background:#fff}
 .brokerBox.buyers .tradeSub{color:#08713d}.brokerBox.sellers .tradeSub{color:#b80e13}
 .brokerTable{width:100%;border-collapse:collapse;font-size:10px}
 .brokerTable th,.brokerTable td{padding:3px 4px;border-bottom:1px solid #eee;white-space:nowrap;text-align:right}
 .brokerTable th:first-child,.brokerTable td:first-child{text-align:left;max-width:130px;overflow:hidden;text-overflow:ellipsis}
 .netPos{color:#08713d;font-weight:700}.netNeg{color:#b80e13;font-weight:700}
+/* V30.20 - Tum gun kurum neti; uc kolon panel icine scroll olmadan sigar */
+.brokerBox .tradeScroll{overflow-x:hidden;overflow-y:auto}
+.brokerTable{width:100%;min-width:0;table-layout:fixed!important}
+.brokerTable th,.brokerTable td{padding:3px 2px!important;overflow:hidden;text-overflow:ellipsis}
+.brokerTable th:nth-child(1),.brokerTable td:nth-child(1){width:52%!important;max-width:none!important;text-align:left}
+.brokerTable th:nth-child(2),.brokerTable td:nth-child(2){width:24%!important}
+.brokerTable th:nth-child(3),.brokerTable td:nth-child(3){width:24%!important}
+
 @media(max-width:760px){
   .tradePanel{width:100%!important;max-width:100%!important;height:620px!important}
   .tradeBody{height:595px;grid-template-rows:265px 1fr}
@@ -224,6 +246,144 @@ body{margin:0;overflow-x:hidden;background:var(--bg);font:12px Arial,sans-serif;
   .tradeBody{height:825px;grid-template-rows:285px 1fr}
   .brokerArea{grid-template-rows:1fr 1fr}
 }
+
+/* V30.19 - Momentum / Giris Adayi alt frame */
+
+.right.momentum-on #chart{min-height:170px}
+.momZero{position:absolute;border-top:1px solid #9aa3aa;pointer-events:none}
+.momBar{position:absolute;bottom:auto;opacity:.92;pointer-events:none}
+.momTop{position:absolute;font:700 8px Arial;text-align:center;line-height:9px;white-space:nowrap;transform:translateX(-50%);z-index:8}
+.momTime{position:absolute;bottom:1px;font:8px Arial;color:#666;transform:translateX(-50%)}
+.momCandidate{position:absolute;right:5px;top:4px;z-index:12;padding:2px 6px;border:1px solid #777;background:#fff;font:700 10px Arial;border-radius:2px}
+.momCandidate.strong,.momCandidate.candidate{background:#e8f7ed;color:#08713d;border-color:#08713d}
+.momCandidate.watch{background:#fff7dc;color:#8a5a00;border-color:#c89a25}
+.momLegend{position:absolute;left:45px;top:3px;font:8px Arial;z-index:10;background:rgba(255,255,255,.86);padding:1px 3px}
+</style>
+
+
+<style>
+
+
+</style>
+
+
+<style>
+
+#momentumFixedTitle{
+ position:absolute;left:8px;top:6px;z-index:30;font:bold 12px Arial;color:#222;
+ pointer-events:none;background:rgba(255,255,255,.88);padding:2px 5px
+}
+#momentumFixedLegend{
+ position:absolute;left:8px;top:25px;z-index:30;font:11px Arial;color:#333;
+ pointer-events:none;background:rgba(255,255,255,.88);padding:2px 5px
+}
+@media (max-width:900px){
+ 
+}
+</style>
+
+
+<style>
+/* V30.22: Momentum is a permanent panel before Gerçekleşen İşlemler.
+   On narrow screens panels stack vertically. */
+@media (max-width:900px){
+  body{overflow:auto}
+  .main,.mainGrid,.grid,.layout,.panels,.container{
+    grid-template-columns:1fr !important;
+    flex-wrap:wrap !important;
+  }
+  .panel,.col,.column{
+    width:100% !important;
+    max-width:none !important;
+  }
+}
+</style>
+
+
+<style>
+/* V30.23 YERLEŞİM DÜZELTMESİ */
+body{overflow-x:auto!important}
+
+/* Ana fiyat panelinde Momentum artık yok; boş alan bırakma. */
+.chartPanel{height:548px!important}
+.right{height:523px!important}
+
+/* CVD sıkışmasın. */
+#cvdChart{
+  height:116px!important;
+  flex:0 0 116px!important;
+  position:relative;
+  border-top:1px solid #c7cdd2;
+  overflow:hidden;
+  background:#fff;
+}
+
+/* Fiyat grafiği kalan gerçek alanı kullansın. */
+#chart{
+  flex:1 1 auto!important;
+  min-height:0!important;
+}
+
+/* Momentum artık gerçek bağımsız panel. */
+.momentumPanel{
+  width:500px;
+  height:548px;
+  flex:none;
+}
+#momentumChart{
+  width:100%;
+  height:523px;
+  position:relative;
+  box-sizing:border-box;
+  overflow:hidden;
+  background:#fff;
+  display:block!important;
+  margin:0!important;
+  border:0!important;
+  min-width:0;
+}
+#momentumFixedTitle{
+  display:none!important; /* panel başlığı zaten var */
+}
+#momentumFixedLegend{
+  left:8px!important;
+  top:5px!important;
+  z-index:30!important;
+  font:11px Arial!important;
+  color:#333!important;
+  pointer-events:none!important;
+  background:rgba(255,255,255,.92)!important;
+  padding:3px 5px!important;
+  white-space:nowrap;
+}
+
+/* Masaüstünde 4 panel yan yana; ekran yetmezse yatay kaydırma olur, panel kesilmez. */
+.main{
+  display:flex!important;
+  align-items:flex-start!important;
+  flex-wrap:nowrap!important;
+  width:max-content!important;
+  max-width:none!important;
+}
+
+/* Dar ekran / mobil: gerçek alt alta görünüm. */
+@media (max-width:900px){
+  body{overflow-x:hidden!important;overflow-y:auto!important}
+  .main{
+    display:flex!important;
+    flex-direction:column!important;
+    width:100%!important;
+    max-width:100%!important;
+    gap:4px!important;
+  }
+  .bookPanel,.chartPanel,.momentumPanel,.tradePanel{
+    width:100%!important;
+    max-width:100%!important;
+  }
+  .momentumPanel{height:420px!important}
+  #momentumChart{height:395px!important}
+  #cvdChart{height:105px!important;flex-basis:105px!important}
+}
 </style>
 
 </head>
@@ -231,14 +391,14 @@ body{margin:0;overflow-x:hidden;background:var(--bg);font:12px Arial,sans-serif;
 <div class="top" style="display:flex;align-items:center;flex-wrap:wrap;gap:4px"><b>TraderF — <span id="activeSymbolTitle">SISE</span></b><span id="status"></span>
 <select id="symbolSelect" class="symbolSelect" title="Hisse seç"></select>
 <span id="symbolStatus" class="symbolStatus"></span>
-<span id="dayInfo" class="dayInfo"><span id="prevCloseText">ÖK: -</span><span id="dayPctText" class="na">Günlük: -</span></span>
+<span id="dayInfo" class="dayInfo"><span id="prevCloseText">Önceki Kapanış —</span><span id="dayPctText" class="na">Günlük Fark —</span><span>Son Veri <b id="lastDataTime">—</b></span></span><button id="cgptCopyBtn" type="button" style="height:23px;font:700 10px Arial">CGPT Hızlı Al-Sat Analizi Kopyala</button>
 </div>
 <div class="main">
 <section class="panel bookPanel" style="width:510px;height:548px">
 <div class="head">1 - EMİR DERİNLİK TAKİP</div>
 <div class="left">
   <div class="dir">
-    <b>KALICI YÖN</b>
+    <b>EMİR YÖNÜ</b>
     <div class="dr"><span>ÖNCEKİ</span><span id="dPrev" class="dv">-</span></div>
     <div class="dr"><span>ŞİMDİ</span><span id="dNow" class="dv">-</span></div>
     <div class="dr"><span id="dDiff">FARK -</span><span id="dTrend" class="dv">-</span></div>
@@ -249,21 +409,73 @@ body{margin:0;overflow-x:hidden;background:var(--bg);font:12px Arial,sans-serif;
 </section>
 
 <section class="panel chartPanel" style="width:680px;height:548px">
-<div class="head">2 - GÜN İÇİ / 30 MUM / FİYAT <button id="liveBtn" type="button">CANLI →</button></div>
+<div class="head">2 - PORTAL GEÇMİŞ + CANLI / 30 MUM / FİYAT <button id="liveBtn" type="button">CANLI →</button></div>
 <div class="right">
  <div class="meta">
   <span id="mBid">Bid:-</span><span id="mAsk">Ask:-</span><span id="mMid">Mid:-</span>
   <span id="mOrder">Emir:-</span><span id="mTime">-</span>
  </div>
- <div id="chart"></div>
+ <div style="height:24px;display:flex;align-items:center;justify-content:flex-end;padding:0 6px;border-bottom:1px solid #e3e6e8;font:10px Arial">
+  <label style="display:flex;align-items:center;gap:3px;margin-right:8px;font-weight:700;white-space:nowrap">
+    <input id="vwapToggle" type="checkbox" checked style="margin:0"> VWAP
+  </label>
+  <label style="display:flex;align-items:center;gap:3px;margin-right:8px;font-weight:700;white-space:nowrap">
+    <input id="cvdToggle" type="checkbox" checked style="margin:0"> CVD/DELTA
+  </label>
+  
+  <label style="display:flex;align-items:center;gap:3px;margin-right:8px;font-weight:700;white-space:nowrap">
+    <input id="srToggle" type="checkbox" style="margin:0"> Destek/Direnç
+  </label>
+  <label style="display:flex;align-items:center;gap:3px;margin-right:10px;font-weight:700;white-space:nowrap">
+    <input id="trendToggle" type="checkbox" style="margin:0"> Trend
+  </label>
+  <label style="display:flex;align-items:center;gap:3px;margin-right:8px;font-weight:700;white-space:nowrap">
+    <input id="prevCloseToggle" type="checkbox" checked style="margin:0"> Önceki Kapanış
+  </label>
+  <label style="display:flex;align-items:center;gap:3px;margin-right:8px;font-weight:700;white-space:nowrap">
+    <input id="robotTradesToggle" type="checkbox" checked style="margin:0"> Robot İşlem
+  </label>
+  <span style="margin-right:4px;font-weight:700">Periyot:</span>
+  <select id="timeframeSelect" style="height:20px;font:10px Arial;padding:0 3px">
+    <option value="1" selected>1 dk</option>
+    <option value="5">5 dk</option>
+    <option value="10">10 dk</option>
+  </select>
+  <span style="margin-left:8px;font-weight:700">Dikey:</span>
+  <button id="yZoomIn" type="button" title="Dikey aralığı daralt" style="height:20px;min-width:24px;padding:0 5px;font:bold 11px Arial">+</button>
+  <button id="yZoomOut" type="button" title="Dikey aralığı genişlet" style="height:20px;min-width:24px;padding:0 5px;font:bold 11px Arial">−</button>
+  <button id="yZoomAuto" type="button" title="Otomatik dikey aralık" style="height:20px;padding:0 6px;font:bold 9px Arial">AUTO</button>
+</div>
+<div id="chart"></div>
+ <div id="robotView" class="robotView off">
+   <div class="rvHead"><b>ROBOT</b><span id="rvStatus">İZLİYOR</span><button id="rvClose" type="button" title="Pencereyi kapat">×</button></div>
+   <div class="rvGrid">
+     <span>Alış</span><b id="rvEntry">—</b><span>Adet</span><b id="rvQty">—</b>
+     <span>Anlık</span><b id="rvNow">—</b><span>K/Z</span><b id="rvPnl">—</b>
+     <span>Tepe</span><b id="rvPeak">—</b><span>Stop</span><b id="rvStop">—</b>
+     <span>Sinyal</span><b id="rvSignal" class="rvWide">—</b>
+   </div>
+ </div>
+ <div id="flowLegend" style="font:10px Arial;padding:2px 6px;border-top:1px solid #ddd;white-space:nowrap;overflow:hidden">
+   <span id="vwapLegend" style="color:#7b2cbf;font-weight:700">VWAP: -</span>
+   <span id="flowRest"> &nbsp; | &nbsp; Mum Hacmi: - &nbsp; | &nbsp; Delta: - &nbsp; | &nbsp; CVD: -</span>
+ </div>
+ <div id="cvdChart" style="height:82px;position:relative;border-top:1px solid #d5d9dd;overflow:hidden"></div>
+ 
 </div>
 </section>
 
+
+<section class="panel momentumPanel">
+  <div class="head">3 - MOMENTUM / GİRİŞ ADAYI</div>
+  <div id="momentumChart"><div id="momentumFixedTitle">MOMENTUM / GİRİŞ ADAYI</div><div id="momentumFixedLegend">Fiyat &nbsp;|&nbsp; Delta &nbsp;|&nbsp; Emir &nbsp;|&nbsp; VWAP &nbsp;&nbsp; • &nbsp;&nbsp; Üst: Momentum Skoru &nbsp; Alt: Kapanış</div></div>
+</section>
+
 <section class="panel tradePanel">
-<div class="head">3 - GERÇEKLEŞEN İŞLEMLER / KURUM NET</div>
+<div class="head">4 - GERÇEKLEŞEN İŞLEMLER / KURUM NET</div>
 <div class="tradeBody">
   <div class="tradeRecent">
-    <div class="tradeSub">SON 200 İŞLEM</div>
+    <div class="tradeSub">SON 200 İŞLEM <span id="flowHealth" style="float:right;margin-right:6px;font-weight:normal;color:#666">Akış bekleniyor</span></div>
     <div class="tradeScroll">
       <table class="tradeTable">
         <thead><tr><th>Saat</th><th>Fiyat</th><th>Miktar</th><th>Alıcı</th><th>Satıcı</th></tr></thead>
@@ -273,19 +485,19 @@ body{margin:0;overflow-x:hidden;background:var(--bg);font:12px Arial,sans-serif;
   </div>
   <div class="brokerArea">
     <div class="brokerBox buyers">
-      <div class="tradeSub">NET ALICILAR</div>
+      <div class="tradeSub">NET ALICILAR <span id="brokerWindowLabel" style="font-weight:normal;color:#555">(Tüm Gün)</span></div>
       <div class="tradeScroll">
         <table class="brokerTable">
-          <thead><tr><th>Kurum</th><th>Alış</th><th>Satış</th><th>Net</th></tr></thead>
+          <thead><tr><th>Kurum</th><th>Ort.Fiyat</th><th>Net Tutar</th></tr></thead>
           <tbody id="netBuyers"></tbody>
         </table>
       </div>
     </div>
     <div class="brokerBox sellers">
-      <div class="tradeSub">NET SATICILAR</div>
+      <div class="tradeSub">NET SATICILAR <span style="font-weight:normal;color:#555">(Tüm Gün)</span></div>
       <div class="tradeScroll">
         <table class="brokerTable">
-          <thead><tr><th>Kurum</th><th>Alış</th><th>Satış</th><th>Net</th></tr></thead>
+          <thead><tr><th>Kurum</th><th>Ort.Fiyat</th><th>Net Tutar</th></tr></thead>
           <tbody id="netSellers"></tbody>
         </table>
       </div>
@@ -303,14 +515,334 @@ const CHART={
   verticalPadTicks:1, // üst/alt boşluk: kaç kademe
   candleMaxWidth:20
 };
-let current=null,chartDay=[],tradesRecent=[],brokerNet={};
+let current=null,momentumRadar={},chartDay=[],portalHistoryByTf={1:[],5:[],10:[]},tradesRecent=[],brokerNet={},liveFlow={};
+let pollTimer=null;
 const VISIBLE_CANDLES=30;
-let chartOffset=0; // 0 = canlı/son 40; pozitif = geçmişe git
+let chartOffset=0; // 0 = canlı/son 30; pozitif = geçmişe git
 let activeSymbol="SISE";
 let dayData=null;
 let currentStreams=[];
+let bindGeneration=0;
 let symbolListTimer=null;
 let lastLadderBid=null,lastLadderTick=null;
+let chartTimeframe=1;
+let showSupportResistance=false;
+let showTrendLines=false;
+let showVWAP=true;
+let showCvdDelta=true;
+let showPreviousClose=true;
+let chartYZoom=1;
+let showRobotTrades=true;
+let robotViewState=null;
+let robotViewHistory={};
+let robotViewDismissedPositionId="";
+let viewerRobotCalc={positionId:"",peak:0};
+let showMomentum=true;
+let momentumHistoryByTf={1:[],5:[],10:[]};
+let brokerWindow="day";
+let brokerWindowNet=null;
+let brokerWindowLoading=false;
+let tradesDayReady=false; // VWAP, tam günlük işlem geçmişi gelmeden kısmi recent veriyle hesaplanmaz.
+// V30.13: yüksek frekanslı trade akışı UI ana threadini kilitlemesin.
+let chartRenderPending=false, brokerRenderPending=false, liveDerivedTimer=null;
+function scheduleChartRender(){
+  if(chartRenderPending)return;
+  chartRenderPending=true;
+  requestAnimationFrame(()=>{chartRenderPending=false;renderChart();});
+}
+function updateLiveCandleFromCurrent(){
+  const p=Number(current?.mid??current?.bestBid??current?.bestAsk);
+  const rawTime=String(current?.platformTime||current?.time||"");
+  const mm=rawTime.match(/(\d{1,2}):(\d{2})/);
+  if(!(p>0)||!mm)return;
+  const minuteKey=`${String(mm[1]).padStart(2,"0")}:${mm[2]}`;
+  const date=String(current?.date||current?.marketDate||new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Istanbul",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date()));
+  let i=chartDay.findIndex(x=>String(x?.date||"")===date&&String(x?.minuteKey||x?.time||"").slice(0,5)===minuteKey);
+  if(i<0){
+    const prev=mergedChart1m().at(-1),open=Number(prev?.close??prev?.price??p);
+    chartDay.push({date,minuteKey,time:minuteKey,ts:Date.now(),open,high:Math.max(open,p),low:Math.min(open,p),close:p,price:p,volume:0,delta:0,cvd:Number(prev?.cvd)||0,vwap:Number(prev?.vwap)||0,orderDirection:Number(current?.orderDirection)||0,live:true});
+  }else{
+    const x={...chartDay[i]},open=Number(x.open??x.close??p);
+    x.open=open;x.close=p;x.price=p;x.high=Math.max(Number(x.high??open),p);x.low=Math.min(Number(x.low??open),p);x.orderDirection=Number(current?.orderDirection)||0;x.live=true;x.time=rawTime||minuteKey;
+    chartDay[i]=x;
+  }
+}
+function scheduleBrokerRender(){
+  if(brokerRenderPending)return;
+  brokerRenderPending=true;
+  setTimeout(()=>{brokerRenderPending=false;renderBrokerNet();},180);
+}
+function scheduleLiveDerived(){
+  if(liveDerivedTimer)return;
+  liveDerivedTimer=setTimeout(()=>{
+    liveDerivedTimer=null;
+    mergeTradesIntoDay(tradesRecent);
+    brokerWindowNet=buildBrokerNetFromTrades(tradesDayCache,brokerWindow);
+    scheduleBrokerRender();
+    scheduleChartRender();
+  },220);
+}
+
+
+function calcSupportResistance(candles,currentPrice){
+  const a=(candles||[]).filter(Boolean);
+  if(a.length<5||!(currentPrice>0))return {supports:[],resistances:[]};
+  const pivots=[];
+  for(let i=2;i<a.length-2;i++){
+    const hi=Number(a[i].high),lo=Number(a[i].low);
+    if(!(hi>0)||!(lo>0))continue;
+    const sh=hi>=Number(a[i-1].high)&&hi>=Number(a[i-2].high)&&
+             hi>Number(a[i+1].high)&&hi>=Number(a[i+2].high);
+    const sl=lo<=Number(a[i-1].low)&&lo<=Number(a[i-2].low)&&
+             lo<Number(a[i+1].low)&&lo<=Number(a[i+2].low);
+    if(sh)pivots.push({price:hi,type:"R",idx:i,touches:1,indices:[i]});
+    if(sl)pivots.push({price:lo,type:"S",idx:i,touches:1,indices:[i]});
+  }
+  const clustered=[];
+  for(const p of pivots){
+    const tol=Math.max(currentPrice*.002,.01);
+    const c=clustered.find(x=>x.type===p.type&&Math.abs(x.price-p.price)<=tol);
+    if(c){
+      c.price=(c.price*c.touches+p.price)/(c.touches+1);
+      c.touches++;
+      c.idx=Math.max(c.idx,p.idx);
+      c.indices.push(...p.indices);
+    } else clustered.push({...p,indices:[...p.indices]});
+  }
+  const rank=(x,y)=>(y.touches-x.touches)||
+    (Math.abs(x.price-currentPrice)-Math.abs(y.price-currentPrice))||(y.idx-x.idx);
+  return {
+    supports:clustered.filter(x=>x.price<currentPrice).sort(rank).slice(0,2).sort((x,y)=>y.price-x.price),
+    resistances:clustered.filter(x=>x.price>currentPrice).sort(rank).slice(0,2).sort((x,y)=>x.price-y.price)
+  };
+}
+
+function drawSupportResistance(C,all,currentPrice,left,right,top,H,min,max){
+  if(!showSupportResistance||!(currentPrice>0)||!(max>min))return;
+  const sr=calcSupportResistance(all,currentPrice);
+  const ph=Math.max(80,H-top-22);
+  const y=p=>top+(max-p)/(max-min)*ph;
+
+  // Fiyat sırasına göre: D2 (üst), D1, S1, S2 (alt).
+  const D1=sr.resistances[0]||null;
+  const D2=sr.resistances[1]||null;
+  const S1=sr.supports[0]||null;
+  const S2=sr.supports[1]||null;
+
+  // Bölgesel arka planlar. Mumların altında, çok hafif transparan.
+  // D2-D1 = turuncu, D1-S1 = sarı, S1-S2 = yeşil.
+  const zoneRight=2;
+  const zoneWidth=Math.max(20,C.clientWidth-left-zoneRight);
+  function zone(a,b,color,title){
+    if(!a||!b)return;
+    const ya=y(a.price),yb=y(b.price);
+    const zTop=Math.max(top,Math.min(ya,yb));
+    const zBottom=Math.min(H-22,Math.max(ya,yb));
+    if(zBottom<=zTop)return;
+    const z=document.createElement("div");
+    z.title=title;
+    z.style.cssText=`position:absolute;left:${left}px;top:${Math.round(zTop)}px;width:${zoneWidth}px;height:${Math.max(1,Math.round(zBottom-zTop))}px;background:${color};pointer-events:none;z-index:3`;
+    C.appendChild(z);
+  }
+  zone(D2,D1,"rgba(255,140,0,.10)","D2-D1 direnç bölgesi");
+  zone(D1,S1,"rgba(255,215,0,.09)","D1-S1 geçiş bölgesi");
+  zone(S1,S2,"rgba(46,160,67,.08)","S1-S2 destek bölgesi");
+
+  const levels=[
+    ...(D1?[{...D1,label:"D1"}]:[]),
+    ...(D2?[{...D2,label:"D2"}]:[]),
+    ...(S1?[{...S1,label:"S1"}]:[]),
+    ...(S2?[{...S2,label:"S2"}]:[])
+  ];
+  const visibleCount=Math.min(VISIBLE_CANDLES,all.length);
+  const visibleStart=Math.max(0,all.length-chartOffset-visibleCount);
+  const pw=Math.max(100,C.clientWidth-left-right);
+  const cw=Math.max(8,Math.min(CHART.candleMaxWidth,Math.floor(pw/VISIBLE_CANDLES)));
+  const sx=left+1;
+
+  for(const x of levels){
+    const yy=y(x.price);
+    if(yy<top||yy>H-22)continue;
+    const col=x.type==="S"?"#18864b":"#b43a3a";
+
+    // Çizgiyi normal mum alanından en az 20 px daha sağa uzat.
+    const line=document.createElement("div");
+    line.style.cssText=`position:absolute;left:${left}px;right:2px;top:${Math.round(yy)}px;border-top:1px dashed ${col};pointer-events:none;z-index:8`;
+    C.appendChild(line);
+
+    // Etiketi grafiğin en sağ boşluğuna taşı: D1/D2/S1/S2 kısa ve temiz.
+    const lab=document.createElement("div");
+    lab.textContent=`${x.label} ${fmtP(x.price)}${x.touches>1?` ×${x.touches}`:""}`;
+    lab.style.cssText=`position:absolute;right:2px;top:${Math.round(yy)-12}px;font:700 9px Arial;color:${col};background:rgba(255,255,255,.94);padding:0 3px;pointer-events:none;z-index:12;white-space:nowrap`;
+    C.appendChild(lab);
+
+    // Seviyeyi oluşturan görünür pivotları küçük dairelerle işaretle.
+    for(const idx of (x.indices||[])){
+      if(idx<visibleStart || idx>=visibleStart+visibleCount)continue;
+      const local=idx-visibleStart;
+      const dot=document.createElement("div");
+      dot.title=`${x.label} temas noktası`;
+      dot.style.cssText=`position:absolute;left:${Math.round(sx+local*cw+cw/2-3)}px;top:${Math.round(yy-3)}px;width:6px;height:6px;border-radius:50%;background:${col};border:1px solid #fff;box-sizing:border-box;pointer-events:none;z-index:10`;
+      C.appendChild(dot);
+    }
+  }
+}
+
+function calcTrendLines(candles){
+  const a=(candles||[]).filter(Boolean);
+  if(a.length<12)return [];
+  const start=Math.max(0,a.length-220), lows=[], highs=[];
+  for(let i=Math.max(start+2,2);i<a.length-2;i++){
+    const lo=Number(a[i].low),hi=Number(a[i].high);
+    if(Number.isFinite(lo)&&lo<=Number(a[i-1].low)&&lo<=Number(a[i-2].low)&&lo<Number(a[i+1].low)&&lo<=Number(a[i+2].low)) lows.push({i,p:lo});
+    if(Number.isFinite(hi)&&hi>=Number(a[i-1].high)&&hi>=Number(a[i-2].high)&&hi>Number(a[i+1].high)&&hi>=Number(a[i+2].high)) highs.push({i,p:hi});
+  }
+  function best(points,kind){
+    let best=null;
+    const pts=points.slice(-18);
+    for(let x=0;x<pts.length-1;x++)for(let z=x+1;z<pts.length;z++){
+      const p1=pts[x],p2=pts[z],gap=p2.i-p1.i;if(gap<5)continue;
+      const slope=(p2.p-p1.p)/gap;
+      if(kind==="UP" && slope<=0)continue;
+      if(kind==="DOWN" && slope>=0)continue;
+      const base=Math.max(Math.abs(p2.p)*0.0015,.01);
+      let touches=0,viol=0;
+      for(const q of pts){
+        if(q.i<p1.i)continue;
+        const pred=p1.p+slope*(q.i-p1.i),d=Math.abs(q.p-pred);
+        if(d<=base)touches++;
+        if(kind==="UP" && q.p<pred-base*1.4)viol++;
+        if(kind==="DOWN" && q.p>pred+base*1.4)viol++;
+      }
+      const score=touches*12+gap*.08-viol*8;
+      if(touches>=2 && (!best||score>best.score))best={kind,p1,p2,slope,touches,score};
+    }
+    return best;
+  }
+  return [best(lows,"UP"),best(highs,"DOWN")].filter(Boolean);
+}
+function drawTrendLines(C,all,left,right,top,H,min,max){
+  if(!showTrendLines||!(max>min))return;
+  const lines=calcTrendLines(all);if(!lines.length)return;
+  const ph=Math.max(80,H-top-22),pw=Math.max(100,C.clientWidth-left-right);
+  const y=p=>top+(max-p)/(max-min)*ph;
+  const visibleCount=Math.min(VISIBLE_CANDLES,all.length),visibleStart=Math.max(0,all.length-chartOffset-visibleCount);
+  const cw=Math.max(8,Math.min(CHART.candleMaxWidth,Math.floor(pw/VISIBLE_CANDLES))),sx=left+1;
+  for(const ln of lines){
+    const i1=visibleStart,i2=visibleStart+visibleCount-1;
+    const p1=ln.p1.p+ln.slope*(i1-ln.p1.i),p2=ln.p1.p+ln.slope*(i2-ln.p1.i);
+    const x1=sx+cw/2,x2=sx+(visibleCount-1)*cw+cw/2,y1=y(p1),y2=y(p2);
+    const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);
+    const seg=document.createElement("div");
+    seg.style.cssText=`position:absolute;z-index:16;left:${x1}px;top:${y1}px;width:${len}px;border-top:2px solid #111;transform-origin:0 0;transform:rotate(${Math.atan2(dy,dx)}rad);pointer-events:none`;
+    C.appendChild(seg);
+    const lab=document.createElement("div");
+    lab.textContent=`${ln.kind==="UP"?"Yükselen Trend":"Düşen Trend"} ×${ln.touches}`;
+    lab.style.cssText=`position:absolute;z-index:17;left:${Math.max(left+3,Math.min(C.clientWidth-right-105,x2-100))}px;top:${Math.max(top,Math.min(H-35,y2-14))}px;font:700 9px Arial;color:#111;background:rgba(255,255,255,.88);padding:0 2px;pointer-events:none`;
+    C.appendChild(lab);
+  }
+}
+
+function mergedChart1m(){
+  // Portal geçmişi taban; Writer'ın canlı chartDay verisi aynı dakika için üstüne gelir.
+  // Böylece eski OHLC korunurken canlı Delta/CVD/VWAP alanları kaybolmaz.
+  const m=new Map();
+  for(const x of (portalHistoryByTf[1]||[]).filter(Boolean)){
+    const k=`${x.date||""}|${x.minuteKey||String(x.time||"").slice(0,5)}`;
+    m.set(k,{...x});
+  }
+  for(const x of (chartDay||[]).filter(Boolean)){
+    const k=`${x.date||""}|${x.minuteKey||String(x.time||"").slice(0,5)}`;
+    const old=m.get(k)||{};
+    m.set(k,{...old,...x});
+  }
+  return [...m.values()].sort((a,b)=>{
+    const ta=Number(a.ts)||Date.parse(`${a.date||"1970-01-01"}T${a.minuteKey||"00:00"}:00`)||0;
+    const tb=Number(b.ts)||Date.parse(`${b.date||"1970-01-01"}T${b.minuteKey||"00:00"}:00`)||0;
+    return ta-tb;
+  });
+}
+
+function normalizeTradeRows(rows){
+  return (Array.isArray(rows)?rows:Object.values(rows||{})).filter(Boolean);
+}
+function tradeIdentity(t){
+  return [t?.capturedAt||t?.timestamp||t?.datetime||t?.time||"",Number(t?.price)||0,Number(t?.qty)||0,String(t?.buyer||""),String(t?.seller||"")].join("|");
+}
+function mergeTradesIntoDay(rows){
+  const map=new Map(normalizeTradeRows(tradesDayCache).map(t=>[tradeIdentity(t),t]));
+  for(const t of normalizeTradeRows(rows)) map.set(tradeIdentity(t),t);
+  tradesDayCache=[...map.values()].sort((a,b)=>(tradeMs(a)||0)-(tradeMs(b)||0));
+  tradesDayLastLoad=Date.now();
+}
+function applySessionVwap(candles,tf=1){
+  const a=(candles||[]).map(x=>({...x}));
+  if(!a.length)return a;
+  if(!tradesDayReady){ for(const x of a) x.vwap=0; return a; }
+  if(!tradesDayCache.length)return a;
+  const trades=[...tradesDayCache].filter(Boolean).map(t=>({t,ms:tradeMs(t)})).filter(x=>Number.isFinite(x.ms)).sort((x,y)=>x.ms-y.ms);
+  if(!trades.length)return a;
+  let ti=0,pv=0,vol=0;
+  for(const x of a){
+    const mk=String(x.minuteKey||x.time||"").slice(0,5), mm=/^(\d{1,2}):(\d{2})$/.exec(mk);
+    if(!mm)continue;
+    const baseDate=/^\d{4}-\d{2}-\d{2}$/.test(String(x.date||""))?new Date(`${x.date}T00:00:00`):new Date();
+    const end=new Date(baseDate.getFullYear(),baseDate.getMonth(),baseDate.getDate(),Number(mm[1]),Number(mm[2])+Math.max(1,Number(tf)||1),0,0).getTime()-1;
+    while(ti<trades.length&&trades[ti].ms<=end){const t=trades[ti++].t,q=Number(t.qty)||0,p=Number(t.price)||0;if(q>0&&p>0){vol+=q;pv+=q*p;}}
+    if(vol>0)x.vwap=pv/vol;
+  }
+  return a;
+}
+
+function aggregateCandles(source,tf){
+  const arr=(source||[]).filter(Boolean);
+  if(tf<=1)return arr;
+
+  const groups=[];
+  let g=null;
+  for(const x of arr){
+    const mk=String(x.minuteKey||String(x.time||"").slice(0,5));
+    const mm=/^(\d{1,2}):(\d{2})$/.exec(mk);
+    if(!mm)continue;
+    const h=Number(mm[1]),m=Number(mm[2]);
+    const bucketMin=Math.floor(m/tf)*tf;
+    const key=`${String(h).padStart(2,"0")}:${String(bucketMin).padStart(2,"0")}`;
+    const close=Number(x.close??x.price);
+    const vol=Number(x.volume)||0;
+    const delta=Number(x.delta)||0;
+
+    if(!g||g.minuteKey!==key){
+      if(g)groups.push(g);
+      g={
+        ...x,
+        minuteKey:key,
+        open:Number(x.open??close),
+        high:Number(x.high??close),
+        low:Number(x.low??close),
+        close,
+        volume:vol,
+        delta,
+        // CVD ve VWAP periyodun en son 1 dk kaydından alınır.
+        cvd:Number(x.cvd)||0,
+        vwap:Number(x.vwap)||0,
+        orderDirection:Number(x.orderDirection)||0,
+        live:!!x.live
+      };
+    }else{
+      g.high=Math.max(Number(g.high),Number(x.high??close));
+      g.low=Math.min(Number(g.low),Number(x.low??close));
+      g.close=close;
+      g.volume+=vol;
+      g.delta+=delta;
+      g.cvd=Number(x.cvd)||g.cvd;
+      g.vwap=Number(x.vwap)||g.vwap;
+      g.orderDirection=Number(x.orderDirection)||0;
+      g.live=!!x.live;
+    }
+  }
+  if(g)groups.push(g);
+  return groups;
+}
 
 function showLadderMove(steps){
  const box=$("moveBox");
@@ -333,6 +865,17 @@ function detectLadderMove(){
 const $=id=>document.getElementById(id);
 const fmtP=v=>Number(v??0).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:3});
 const fmtQ=v=>Math.round(Number(v??0)).toLocaleString("tr-TR");
+// V30.18: Kurum Net tablolarinda alan tasmasini azaltan kompakt formatlar
+const fmtBrokerQ=v=>{
+  const n=Math.round(Number(v??0));
+  const a=Math.abs(n);
+  if(a>=1000000){
+    const k=n/1000;
+    return k.toLocaleString("tr-TR",{minimumFractionDigits:0,maximumFractionDigits:0})+"K";
+  }
+  return n.toLocaleString("tr-TR");
+};
+const fmtBrokerP=v=>Number(v??0).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2});
 const signed=v=>{v=Number(v??0);if(Object.is(v,-0))v=0;return v>0?`+${Math.round(v)}`:`${Math.round(v)}`};
 
 function stream(path,onData){
@@ -344,8 +887,23 @@ function stream(path,onData){
  return es;
 }
 
+
+let v359PrevDepth=new Map();
+function v359DepthChanged(side,r){
+ const k=`${side}|${Number(r.price)||0}`,sig=`${Number(r.qty)||0}|${Number(r.orders)||0}`;
+ return v359PrevDepth.has(k)&&v359PrevDepth.get(k)!==sig;
+}
+function v359RememberDepth(buy,sell){
+ const m=new Map();
+ (sell||[]).forEach(r=>m.set(`S|${Number(r.price)||0}`,`${Number(r.qty)||0}|${Number(r.orders)||0}`));
+ (buy||[]).forEach(r=>m.set(`B|${Number(r.price)||0}`,`${Number(r.qty)||0}|${Number(r.orders)||0}`));
+ v359PrevDepth=m;
+}
+
 function renderBook(){
  if(!current)return;
+ const ldt=document.getElementById("lastDataTime");
+ if(ldt)ldt.textContent=current.platformTime||current.time||"—";
  const buy=current.buy||[],sell=current.sell||[],L=$("ladder");L.innerHTML="";
  const maxQty=Math.max(1,...buy.map(x=>+x.qty||0),...sell.map(x=>+x.qty||0));
 
@@ -396,7 +954,7 @@ function renderBook(){
  L.append(sv1,sv2,sellVisible);
 
  [...sell].reverse().forEach((r,i)=>{
-   const q=document.createElement("div");q.className="qty sell";q.textContent=fmtQ(r.qty);
+   const q=document.createElement("div");q.className="qty sell"+(v359DepthChanged("S",r)?" qtyFlashSell":"");q.textContent=fmtQ(r.qty);
    const p=document.createElement("div");p.className="price"+(i===sell.length-1?" ask":"");p.textContent=fmtP(r.price);
    const b=document.createElement("div");b.className="barcell sell";b.innerHTML=`<div class="bar" style="width:${Math.max(2,(r.qty/maxQty)*100)}%"></div>`;
    L.append(q,p,b);
@@ -405,7 +963,7 @@ function renderBook(){
  buy.forEach((r,i)=>{
    const b=document.createElement("div");b.className="barcell buy";b.innerHTML=`<div class="bar" style="width:${Math.max(2,(r.qty/maxQty)*100)}%"></div>`;
    const p=document.createElement("div");p.className="price"+(i===0?" bid":"");p.textContent=fmtP(r.price);
-   const q=document.createElement("div");q.className="qty buy";q.textContent=fmtQ(r.qty);
+   const q=document.createElement("div");q.className="qty buy"+(v359DepthChanged("B",r)?" qtyFlashBuy":"");q.textContent=fmtQ(r.qty);
    L.append(b,p,q);
  });
 
@@ -436,7 +994,17 @@ function renderBook(){
  $("dPrev").textContent=`${signed(d.previous)} ${d.previousText||""}`;
  $("dNow").textContent=`${signed(d.current)} ${d.currentText||""}`;
  $("dDiff").textContent=`FARK ${signed(d.difference)}`;
- $("dTrend").textContent=d.trend||"-";
+ const shortTrend=(v=>{
+   const t=String(v||"").toLocaleUpperCase("tr-TR");
+   if(!t)return "-";
+   if(t.includes("HIZLA")&&t.includes("GÜÇ"))return "GÜÇLÜ+";
+   if(t.includes("GÜÇLEN")||t.includes("GÜÇLÜ"))return "GÜÇLÜ";
+   if((t.includes("HIZLA")||t.includes("ÇOK"))&&(t.includes("ZAYIF")||t.includes("KAYBED")))return "ZAYIF-";
+   if(t.includes("ZAYIF")||t.includes("KAYBED"))return "ZAYIF";
+   if(t.includes("YATAY")||t.includes("NÖTR")||t.includes("NOTR"))return "YATAY";
+   return t.replace("GÜÇLENİYOR","GÜÇLÜ").replace("ZAYIFLIYOR","ZAYIF");
+ })(d.trend);
+ $("dTrend").textContent=shortTrend;
 
  $("mBid").textContent=`Bid:${fmtP(current.bestBid)}`;
  $("mAsk").textContent=`Ask:${fmtP(current.bestAsk)}`;
@@ -444,11 +1012,30 @@ function renderBook(){
  $("mOrder").textContent=`Emir:${signed(current.orderDirection)}`;
  $("mTime").textContent=current.platformTime||"";
  $("status").textContent=`snapshot ${current.snapshotId??"-"}`;
+
+ v359RememberDepth(buy,sell);
+}
+
+function mergeCandlesByTime(...sources){
+ const m=new Map();
+ for(const src of sources)for(const x of (src||[]).filter(Boolean)){const mk=String(x.minuteKey||String(x.time||"").slice(0,5));const k=`${x.date||""}|${mk}`;m.set(k,{...(m.get(k)||{}),...x,minuteKey:mk});}
+ return [...m.values()].sort((a,b)=>(Number(a.ts)||Date.parse(`${a.date||"1970-01-01"}T${a.minuteKey||"00:00"}:00`)||0)-(Number(b.ts)||Date.parse(`${b.date||"1970-01-01"}T${b.minuteKey||"00:00"}:00`)||0));
+}
+function selectedTfCandles(){
+ const tf=chartTimeframe;
+ let out;
+ if(tf===1) out=mergedChart1m();
+ else {
+   const from1=aggregateCandles(mergedChart1m(),tf),direct=portalHistoryByTf[tf]||[],live=aggregateCandles(chartDay,tf);
+   out=mergeCandlesByTime(from1,direct,live);
+ }
+ // VWAP her periyotta aynı tradesDay kaynağından, seçili mumun bitiş zamanına kadar yeniden hesaplanır.
+ return applySessionVwap(out,tf);
 }
 
 function renderChart(){
  const C=$("chart");C.innerHTML="";
- const all=(chartDay||[]).filter(Boolean);
+ const all=selectedTfCandles();
  if(!all.length||!current)return;
  const maxOffset=Math.max(0,all.length-VISIBLE_CANDLES);
  chartOffset=Math.max(0,Math.min(chartOffset,maxOffset));
@@ -488,11 +1075,22 @@ function renderChart(){
  const livePrice=Number(current.mid ?? current.bestBid ?? current.bestAsk);
  if(Number.isFinite(livePrice)) vals.push(livePrice);
 
+ // Robot seviyeleri eksen hesabına katılmaz; mumların ölçeğini değiştirmez.
+
  // Otomatik dikey eksen: gerçek aralığın üstünde ve altında 2 kademe boşluk.
  let min=Math.floor((Math.min(...vals)/tick)+1e-9)*tick-2*tick;
  let max=Math.ceil((Math.max(...vals)/tick)-1e-9)*tick+2*tick;
 
  if(max<=min)max=min+tick*6;
+
+ // Kullanıcı dikey aralığı değiştirebilir. 1 = AUTO.
+ // >1 yakınlaştırır (daha dar fiyat aralığı), <1 uzaklaştırır.
+ if(chartYZoom!==1){
+   const center=(min+max)/2;
+   const half=Math.max(tick*3,(max-min)/(2*chartYZoom));
+   min=center-half;
+   max=center+half;
+ }
 
  const ph=Math.max(80,H-top-bottom);
  const pw=Math.max(100,W-left-right);
@@ -501,8 +1099,11 @@ function renderChart(){
  // Dikey eksen sıklığı ayarlanabilir.
  // axisTickStep=1 ise SISE 43,96 / 43,98 / 44,00 ...
  const totalTicks=Math.round((max-min)/tick);
+ // Adaptif eksen: geniş fiyat aralığında yazılar üst üste binmesin.
+ const targetLabels=Math.max(6,Math.min(12,Math.floor(ph/28)));
+ const adaptiveStep=Math.max(CHART.axisTickStep,Math.ceil(totalTicks/targetLabels));
 
- for(let i=0;i<=totalTicks;i+=CHART.axisTickStep){
+ for(let i=0;i<=totalTicks;i+=adaptiveStep){
    const v=max-i*tick;
    const yy=y(v);
 
@@ -591,7 +1192,7 @@ function renderChart(){
 
  // Önceki Kapanış referansı: eksen ölçeğini ASLA değiştirmez.
  const prevClose=Number(dayData?.previousClose);
- if(Number.isFinite(prevClose) && prevClose>0){
+ if(showPreviousClose && Number.isFinite(prevClose) && prevClose>0){
    const ref=document.createElement("div");
    ref.style.position="absolute";
    ref.style.zIndex="20";
@@ -636,12 +1237,461 @@ function renderChart(){
      C.appendChild(ref);
    }
  }
+
+ // VWAP: captured trade volume-weighted session average.
+ const vwapPts=a.map((x,i)=>({i,v:Number(x.vwap)})).filter(x=>Number.isFinite(x.v)&&x.v>0);
+ if(showVWAP && vwapPts.length){
+   for(let j=1;j<vwapPts.length;j++){
+     const p1=vwapPts[j-1],p2=vwapPts[j];
+     const x1=sx+p1.i*cw+cw/2,x2=sx+p2.i*cw+cw/2;
+     const y1=y(p1.v),y2=y(p2.v);
+     const seg=document.createElement("div");
+     const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);
+     seg.style.cssText=`position:absolute;z-index:17;left:${x1}px;top:${y1}px;width:${len}px;border-top:2px solid #7b2cbf;transform-origin:0 0;transform:rotate(${Math.atan2(dy,dx)}rad);pointer-events:none`;
+     C.appendChild(seg);
+   }
+ }
+
+ const lastBar=a[a.length-1]||{};
+ const vwapLegend=document.getElementById("vwapLegend");
+ const flowRest=document.getElementById("flowRest");
+ if(vwapLegend){ vwapLegend.style.display=showVWAP?"":"none"; vwapLegend.textContent=`VWAP: ${fmtP(lastBar.vwap)}`; }
+ if(flowRest) flowRest.textContent=` | Mum Hacmi: ${fmtQ(lastBar.volume||0)}${showCvdDelta?` | Delta: ${signed(lastBar.delta||0)} | CVD: ${signed(lastBar.cvd||0)}`:""}`;
+ // Destek/direnç hesabı görünür 30 mumla değil, eldeki TÜM seçili-periyot geçmişiyle yapılır.
+ drawSupportResistance(C,all,livePrice,left,right,top,H,min,max);
+ drawTrendLines(C,all,left,right,top,H,min,max);
+ const cvdBox=document.getElementById("cvdChart");
+ if(cvdBox) cvdBox.style.display=showCvdDelta?"block":"none";
+ if(showCvdDelta) renderCVD(a);
+ renderMomentum();
+
+ // ROBOT İŞLEM çizgileri — yalnız Firebase'den okunur; grafik DOM tabanlıdır.
+ if(showRobotTrades && a.length){
+   const xForTime=(dateStr,timeStr)=>{
+     const target=String(timeStr||"").slice(0,5),date=String(dateStr||"");
+     const mins=s=>{const m=String(s||"").match(/^(\d{1,2}):(\d{2})/);return m?Number(m[1])*60+Number(m[2]):null};
+     const tm=mins(target);let idx=-1,best=Infinity;
+     for(let i=0;i<a.length;i++){
+       const rowDate=String(a[i]?.date||"");if(date&&rowDate&&date!==rowDate)continue;
+       const cm=mins(a[i]?.minuteKey||a[i]?.time);if(cm==null||tm==null)continue;
+       const d=Math.abs(cm-tm);if(d<best){best=d;idx=i}
+     }
+     return idx>=0?sx+idx*cw+cw/2:null;
+   };
+   const addLine=(x1,y1,x2,y2,color="#c41218",dashed=false)=>{
+     const el=document.createElement("div"),dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);
+     el.style.cssText=`position:absolute;z-index:24;left:${x1}px;top:${y1}px;width:${len}px;border-top:2px ${dashed?"dashed":"solid"} ${color};transform-origin:0 0;transform:rotate(${Math.atan2(dy,dx)}rad);pointer-events:none`;
+     C.appendChild(el);
+   };
+   const addTradeZone=(x1,x2,active=false)=>{
+     const el=document.createElement("div"),lx=Math.max(left,Math.min(x1,x2)),rx=Math.min(W-right,Math.max(x1,x2));
+     if(rx<=lx)return;
+     el.style.cssText=`position:absolute;z-index:7;left:${lx}px;top:${top}px;width:${rx-lx}px;height:${ph}px;background:${active?"rgba(255,204,0,.13)":"rgba(255,204,0,.08)"};border-left:1px dashed #d69e00;border-right:1px dashed #d69e00;pointer-events:none`;
+     C.appendChild(el);
+   };
+   const addLabel=(txt,xp,yp)=>{const el=document.createElement("div");el.style.cssText=`position:absolute;z-index:25;left:${xp}px;top:${yp}px;color:#c41218;font:bold 9px Arial;white-space:nowrap;pointer-events:none`;el.textContent=txt;C.appendChild(el)};
+   const drawSeg=(entry,exit,active=false)=>{
+     const ep=Number(entry.entryPrice);
+     const xp=active?(Number(livePrice)>0?Number(livePrice):Number(robotViewState?.currentPrice)):Number(exit?.exitPrice??exit?.sellPrice);
+     if(!(ep>0))return;
+     // Görünür fiyat aralığının dışındaki eski işlemler grafiği kirletmez.
+     if(ep<min||ep>max)return;
+     if(!active&&xp>0&&(xp<min||xp>max))return;
+     const rawX1=xForTime(entry.buyDate,entry.buyTime),rawX2=active?(W-right):xForTime(exit?.sellDate,exit?.sellTime);
+     if(rawX1==null&&rawX2==null&&!active)return;
+     const x1=rawX1??left,x2=rawX2??(W-right),y1=y(ep),y2=xp>0?y(xp):y1;
+     addTradeZone(x1,x2,active);
+     addLabel(`AL ${ep.toFixed(2)}`,Math.max(left,x1+3),y1-14);
+     if(active&&xp>0)addLabel(`ANLIK ${xp.toFixed(2)}`,Math.max(left,x2-70),y2-14);
+     if(!active&&xp>0)addLabel(`SAT ${xp.toFixed(2)}`,Math.max(left,x2-55),y2-14);
+   };
+   for(const h of Object.values(robotViewHistory||{})){
+     if(!h||h.symbol!==activeSymbol)continue;
+     if(h.status==="STOPPED"&&Number(h.entryPrice)>0)drawSeg(h,h,false);
+   }
+   if(robotViewState?.status==="ACTIVE"&&!robotPositionClosed(robotViewState)&&robotViewState.symbol===activeSymbol){
+     drawSeg({entryPrice:robotViewState.entryPrice,buyTime:robotViewState.startedMarketTime,buyDate:robotViewState.startedMarketDate},null,true);
+     const sp=viewerRobotMetrics(robotViewState).stop;
+     if(sp>0&&sp>=min&&sp<=max){
+       const yy=y(sp);addLine(left,yy,W-right,yy,"#c41218",true);addLabel(`STOP ${sp.toFixed(2)}`,left+4,yy-13);
+     }
+   }
+ }
+
+ }
+
+let MOM_VISIBLE=10;
+let MOM_OFFSET=0; // 0 = en yeni 10; arttıkça geçmişe gider
+
+function renderMomentum(){
+ const C=document.getElementById("momentumChart");if(!C)return;
+ C.style.display="block";
+ C.innerHTML="";
+ const tf=chartTimeframe,key=`m${tf}`,cur=current?.momentum?.tf?.[key]||null;
+ const sessionId=current?.momentum?.sessionId||cur?.sessionId||null;
+ let hist=(momentumHistoryByTf[tf]||[]).filter(Boolean);
+
+ /* History'nin tamamını koru. Current aynı zamanın son history kaydıysa mükerrer çizme. */
+ let rows=hist.slice();
+ if(cur){
+   const last=rows[rows.length-1];
+   if(last && String(last.time||'')===String(cur.time||'')) rows[rows.length-1]=cur;
+   else rows.push(cur);
+ }
+ if(!rows.length){
+   C.innerHTML='<div style="padding:8px;color:#777;font:10px Arial">Momentum verisi bekleniyor…</div>';
+   return;
+ }
+
+ const maxOffset=Math.max(0,rows.length-MOM_VISIBLE);
+ MOM_OFFSET=Math.max(0,Math.min(MOM_OFFSET,maxOffset));
+ const end=Math.max(0,rows.length-MOM_OFFSET);
+ const begin=Math.max(0,end-MOM_VISIBLE);
+ const visibleRows=rows.slice(begin,end);
+
+ const W=C.clientWidth,H=C.clientHeight,left=48,right=34,top=28,
+       radarH=118,bottom=radarH+8,
+       pw=Math.max(160,W-left-right),ph=Math.max(150,H-top-bottom);
+ /* Momentum eksenini yukarı al: +100 üstte, -100 altında radar için geniş alan bırak. */
+ const zeroY=top+ph/2;
+ const halfPlot=Math.max(58,ph/2-18);
+ const scale=halfPlot/100;
+
+ /* 10 kolon: dar frame içinde okunabilir sütunlar. */
+ const slot=pw/Math.max(1,MOM_VISIBLE);
+ const gap=Math.max(6,slot*0.24);
+ const barW=Math.max(16,slot-gap);
+ const sx=left+gap/2;
+
+ for(const [val,label] of [[100,'+100'],[0,'0'],[-100,'-100']]){
+   const yy=zeroY-val*scale;
+   const gl=document.createElement('div');
+   gl.style.cssText=`position:absolute;left:${left}px;top:${yy}px;width:${pw}px;border-top:${val===0?'1px solid #8d979f':'1px dashed #d6dce1'};height:0;z-index:0`;
+   C.appendChild(gl);
+   const gt=document.createElement('div');
+   gt.style.cssText=`position:absolute;left:4px;top:${yy-7}px;width:40px;text-align:right;font:10px Arial;color:#555`;
+   gt.textContent=label;C.appendChild(gt);
+ }
+
+ const leg=document.createElement("div");
+ leg.className="momLegend";
+ leg.innerHTML='<span style="color:#2f77b4"><b>■ Fiyat</b></span> <span style="color:#2ca02c"><b>■ Delta</b></span> <span style="color:#8c63b8"><b>■ Emir</b></span> <span style="color:#df75bd"><b>■ VWAP</b></span> &nbsp;★ Aday';
+ C.appendChild(leg);
+
+ const parts=[['priceMom','#2f77b4'],['delta','#2ca02c'],['order','#8c63b8'],['vwap','#df75bd']];
+ visibleRows.forEach((m,i)=>{
+   const xx=sx+i*slot;
+   const vals=parts.map(([k,c])=>[(Number(m[k])||0)*0.25,c]);
+   let pos=0,neg=0;
+   for(const [v,color] of vals){
+     if(!v)continue;
+     const rawH=Math.max(1,Math.abs(v)*scale);
+     const room=v>0?Math.max(0,halfPlot-pos):Math.max(0,halfPlot-neg);
+     const h=Math.min(rawH,room);
+     if(h<=0)continue;
+     const bar=document.createElement('div');bar.className='momBar';
+     bar.style.left=`${xx}px`;bar.style.width=`${barW}px`;
+     bar.style.height=`${h}px`;bar.style.background=color;
+     if(v>0){bar.style.top=`${zeroY-(pos+h)}px`;pos+=h}
+     else{bar.style.top=`${zeroY+neg}px`;neg+=h}
+     C.appendChild(bar);
+   }
+
+   const lab=document.createElement('div');lab.className='momTop';
+   lab.style.left=`${xx+barW/2}px`;
+   const score=Number(m.score)||0;
+   lab.style.top=`${Math.max(1,score>=0?zeroY-pos-22:zeroY+neg+2)}px`;
+   const candCode=String(m?.candidate?.code||'');
+   const isEntry=(candCode==='ADAY'||candCode==='GUCLU_ADAY');
+   lab.innerHTML=`${isEntry?'★ ':''}${score>=0?'+':''}${Math.round(score)}%<br>${fmtP(m.price)}`;
+   if(isEntry){
+     lab.style.background='rgba(255,221,87,.82)';
+     lab.style.border='1px solid #c89a00';lab.style.borderRadius='3px';
+     lab.style.padding='1px 3px';lab.style.fontWeight='700';lab.style.zIndex='25';
+   }
+   C.appendChild(lab);
+
+   /* Az kolon olduğu için saatleri daha sık göster. */
+   if(i===0||i===visibleRows.length-1||i%2===0){
+     const t=document.createElement('div');t.className='momTime';
+     t.style.left=`${xx+barW/2}px`;
+     /* Saat ekseni artık frame dibinde değil, SON ADAY radarının hemen üstünde. */
+     t.style.bottom=`${radarH+7}px`;
+     t.textContent=m.time||'';C.appendChild(t);
+   }
+ });
+
+ const cand=cur?.candidate||rows[rows.length-1]?.candidate||{code:'BEKLE',text:'BEKLE'};
+ const badge=document.createElement('div');
+ badge.className='momCandidate '+(cand.code==='GUCLU_ADAY'?'strong':cand.code==='ADAY'?'candidate':cand.code==='IZLE'?'watch':'');
+ badge.textContent=`${tf} DK • ${cand.text||cand.code}`;
+ C.appendChild(badge);
+
+ const nav=document.createElement('div');nav.className='momRollInfo';
+ nav.style.bottom=`${radarH+18}px`;
+ nav.textContent=`${begin+1}-${end} / ${rows.length}   ← geçmiş | yeni →`;
+ C.appendChild(nav);
+
+ const radar=document.createElement('div');radar.className='momRadar';
+ /* V36.5: Aday paneli sadece /RADAR'a bağımlı değil.
+    Writer'ın momentum history/current verisindeki gerçek ADAY/GUCLU_ADAY kayıtlarından
+    seçili sembolün son adayını da türetir. Böylece RADAR stream gecikse/boş kalsa bile
+    grafikte yıldızlanan aday alt listede kaybolmaz. */
+ const remoteRadar=Object.values(momentumRadar||{}).filter(x=>Number(x?.timeframe)===Number(tf));
+ const candidateRows=rows.filter(x=>{
+   const c=String(x?.candidate?.code||"");
+   return c==="ADAY"||c==="GUCLU_ADAY";
+ });
+ const lastCandidate=candidateRows.length?candidateRows[candidateRows.length-1]:null;
+ const liveM=cur||rows[rows.length-1]||null;
+ let derivedRadar=null;
+ if(lastCandidate){
+   const ap=Number(lastCandidate.price)||0;
+   derivedRadar={
+     symbol:activeSymbol,timeframe:tf,
+     candidateTime:lastCandidate.time||"—",
+     candidateAt:new Date(Number(lastCandidate.ts)||Date.now()).toISOString(),
+     candidatePrice:ap,
+     candidateMomentum:Number(lastCandidate.score)||0,
+     candidateCode:String(lastCandidate?.candidate?.code||"ADAY"),
+     currentPrice:Number(liveM?.price)||ap,
+     currentMomentum:Number(liveM?.score)||0,
+     currentCode:String(liveM?.candidate?.code||"BEKLE"),
+     currentText:String(liveM?.candidate?.text||liveM?.candidate?.code||"BEKLE"),
+     currentTime:liveM?.time||""
+   };
+ }
+ const radarMap=new Map();
+ for(const x of remoteRadar){
+   const k=`${String(x?.symbol||"")}|${Number(x?.timeframe)||0}`;
+   radarMap.set(k,x);
+ }
+ if(derivedRadar){
+   const k=`${activeSymbol}|${Number(tf)}`;
+   const old=radarMap.get(k);
+   /* Yerel momentum history daha yeni/eksiksiz aday içeriyorsa onu kullan. */
+   if(!old?.candidatePrice || String(derivedRadar.candidateAt||"")>=String(old?.candidateAt||"")){
+     radarMap.set(k,{...(old||{}),...derivedRadar});
+   }
+ }
+ const radarRows=[...radarMap.values()]
+   .filter(x=>Number(x?.timeframe)===Number(tf) && Number(x?.candidatePrice)>0)
+   .sort((a,b)=>String(b.candidateAt||"").localeCompare(String(a.candidateAt||"")));
+ const radarBody=radarRows.map(x=>{
+   const ap=Number(x.candidatePrice)||0,cp=Number(x.currentPrice)||0;
+   const after=ap>0?((cp/ap)-1)*100:null;
+   return `<div class="momRadarRow"><span><b>${x.symbol||"—"}</b></span><span>${x.candidateTime||"—"}</span>
+   <span>${ap?fmtP(ap):"—"}</span><span>${x.candidateMomentum!=null?(Number(x.candidateMomentum)>=0?"+":"")+Math.round(Number(x.candidateMomentum))+"%":"—"}</span>
+   <span>${cp?fmtP(cp):"—"}</span><span>${x.currentMomentum!=null?(Number(x.currentMomentum)>=0?"+":"")+Math.round(Number(x.currentMomentum))+"%":"—"}</span>
+   <span>${x.currentText||x.currentCode||"—"}</span><span>${after==null?"—":(after>=0?"+":"")+after.toFixed(2)+"%"}</span></div>`;
+ }).join("");
+ radar.innerHTML=`<div class="momRadarTitle">SON ADAY / GÜNCEL DURUM — ${tf} DK</div>
+ <div class="momRadarHead"><span>Hisse</span><span>Saat</span><span>Aday F.</span><span>Aday %</span><span>Güncel F.</span><span>Güncel %</span><span>Durum</span><span>Sonrası %</span></div>
+ <div class="momRadarBody">${radarBody||'<div class="momRadarEmpty">Henüz aday kaydı yok.</div>'}</div>`;
+ C.appendChild(radar);
+
+ /* Mouse tekerleği: aşağı/sol geçmişe, yukarı/sağ yeniye.
+    Shift+wheel ve yatay touchpad de çalışır. */
+ C.onwheel=(e)=>{
+   e.preventDefault();
+   const d=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;
+   const step=e.shiftKey?1:3;
+   MOM_OFFSET=Math.max(0,Math.min(maxOffset,MOM_OFFSET+(d>0?step:-step)));
+   renderMomentum();
+ };
+
+ /* Mouse/touch sürükleme: sağa sürükle geçmişe, sola sürükle yeniye. */
+ if(!C.dataset.rollBound){
+   C.dataset.rollBound='1';
+   let x0=null;
+   C.addEventListener('pointerdown',e=>{x0=e.clientX;C.setPointerCapture?.(e.pointerId);});
+   C.addEventListener('pointerup',e=>{
+     if(x0===null)return;
+     const dx=e.clientX-x0;x0=null;
+     if(Math.abs(dx)<24)return;
+     MOM_OFFSET=Math.max(0,Math.min(Math.max(0,rows.length-MOM_VISIBLE),MOM_OFFSET+(dx>0?4:-4)));
+     renderMomentum();
+   });
+ }
 }
 
+function renderCVD(a){
+ const C=document.getElementById("cvdChart"); if(!C)return;
+ C.innerHTML="";
+ const vals=a.map(x=>Number(x.cvd)).filter(Number.isFinite);
+ if(!vals.length)return;
+
+ const W=C.clientWidth,H=C.clientHeight;
+ const left=43,right=42,top=7,bottom=23,deltaZone=20;
+ const lineBottom=bottom+deltaZone+3;
+ const lineH=Math.max(24,H-top-lineBottom);
+ const pw=Math.max(50,W-left-right);
+
+ let mn=Math.min(...vals,0),mx=Math.max(...vals,0);
+ if(mx===mn){mx+=1;mn-=1}
+ const y=v=>top+(mx-v)/(mx-mn)*lineH;
+ const zeroY=y(0);
+
+ const zero=document.createElement("div");
+ zero.style.cssText=`position:absolute;left:${left}px;top:${zeroY}px;width:${pw}px;border-top:1px dashed #aaa`;
+ C.appendChild(zero);
+
+ const zeroLab=document.createElement("div");
+ zeroLab.style.cssText=`position:absolute;left:2px;top:${Math.max(0,zeroY-7)}px;font:bold 9px Arial;color:#666;background:rgba(255,255,255,.88);padding-right:2px`;
+ zeroLab.textContent="CVD=0";
+ C.appendChild(zeroLab);
+
+ // Ana mum grafiğiyle BİREBİR aynı yatay geometri.
+ const mainPW=Math.max(100,W-left-right);
+ const cw=Math.max(8,Math.min(CHART.candleMaxWidth,Math.floor(mainPW/VISIBLE_CANDLES)));
+ const sx=left+1;
+
+ // Mum gövdesi ana grafikte width=cw-1 ve left=sx+i*cw.
+ const bodyW=Math.max(1,cw-1);
+ const deltas=a.map(x=>Number(x.delta)||0);
+ const maxAbsDelta=Math.max(1,...deltas.map(Math.abs));
+ const deltaBase=H-3;
+
+ for(let i=0;i<a.length;i++){
+   const d=deltas[i];
+   if(!d)continue;
+   const bh=Math.max(1,Math.round((Math.abs(d)/maxAbsDelta)*(deltaZone-3)));
+   const bar=document.createElement("div");
+   const x=sx+i*cw;  // MUMUN SOLU İLE BİREBİR
+   bar.style.cssText=`position:absolute;z-index:5;left:${x}px;bottom:${H-deltaBase}px;width:${bodyW}px;height:${bh}px;background:${d>0?"#078c47":"#d2141b"};opacity:.82`;
+   bar.title=`${a[i]?.minuteKey||a[i]?.time||""} Delta ${signed(d)}`;
+   C.appendChild(bar);
+ }
+
+ // CVD noktası da aynı mumun TAM MERKEZİ.
+ const cx=i=>sx+i*cw+bodyW/2;
+ for(let i=1;i<a.length;i++){
+   const v1=Number(a[i-1].cvd),v2=Number(a[i].cvd);
+   if(!Number.isFinite(v1)||!Number.isFinite(v2))continue;
+   const x1=cx(i-1),x2=cx(i);
+   const y1=y(v1),y2=y(v2),dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy);
+   const seg=document.createElement("div");
+   seg.style.cssText=`position:absolute;z-index:10;left:${x1}px;top:${y1}px;width:${len}px;border-top:2px solid currentColor;color:${v2>=v1?"#078c47":"#d2141b"};transform-origin:0 0;transform:rotate(${Math.atan2(dy,dx)}rad);pointer-events:none`;
+   C.appendChild(seg);
+ }
+
+ const deltaLab=document.createElement("div");
+ deltaLab.style.cssText="position:absolute;right:5px;bottom:2px;font:bold 8px Arial;color:#666";
+ deltaLab.textContent="DELTA";
+ C.appendChild(deltaLab);
+}
 /* Multi-symbol V13 uses bindSymbol() instead of fixed startup streams. */
 window.addEventListener("resize",renderChart);
 
 const DBROOT="https://traderf-a35e5-default-rtdb.europe-west1.firebasedatabase.app";
+
+
+async function bindMomentumRadar(){
+ try{momentumRadar=await restJson(`${DBROOT}/RADAR.json`)||{};renderMomentum();}catch(e){}
+ const es=new EventSource(`${DBROOT}/RADAR.json`);
+ const apply=(ev)=>{try{const x=JSON.parse(ev.data||"{}");momentumRadar=applyPartial(momentumRadar,x.data,x.path);renderMomentum();}catch(e){}};
+ es.addEventListener("put",apply);es.addEventListener("patch",apply);
+}
+
+
+function rvNum(x,d=2){return Number.isFinite(Number(x))?Number(x).toLocaleString("tr-TR",{minimumFractionDigits:d,maximumFractionDigits:3}):"—"}
+function robotPositionClosed(r){
+ const pid=String(r?.positionId||"");
+ const h=pid?robotViewHistory?.[pid]:null;
+ return String(h?.status||"").toUpperCase()==="STOPPED";
+}
+function viewerRobotMetrics(r){
+ const entry=Number(r?.entryPrice)||0,qty=Number(r?.quantity)||0;
+ const now=Number(current?.mid??current?.bestBid??current?.bestAsk??r?.currentPrice)||0;
+ const pid=String(r?.positionId||"");
+ if(viewerRobotCalc.positionId!==pid)viewerRobotCalc={positionId:pid,peak:Math.max(entry,Number(r?.peakPrice)||0)};
+ const startTime=String(r?.startedMarketTime||"").slice(0,5),startDate=String(r?.startedMarketDate||"");
+ let chartPeak=0;
+ for(const x of mergedChart1m()){
+   const d=String(x?.date||""),t=String(x?.minuteKey||x?.time||"").slice(0,5);
+   if(startDate&&d&&d!==startDate)continue;
+   if(startTime&&t&&t<startTime)continue;
+   chartPeak=Math.max(chartPeak,Number(x?.high)||0,Number(x?.close)||0);
+ }
+ viewerRobotCalc.peak=Math.max(viewerRobotCalc.peak,entry,Number(r?.peakPrice)||0,chartPeak,now);
+ const initialStop=entry*(1-.50/100),trailStop=viewerRobotCalc.peak*(1-.60/100);
+ const stop=Math.max(initialStop,trailStop);
+ const pnl=(now-entry)*qty,pct=entry>0?((now/entry)-1)*100:0;
+ return {entry,qty,now,peak:viewerRobotCalc.peak,stop,pnl,pct,signal:now>0&&stop>0&&now<=stop?"SAT":""};
+}
+function renderRobotView(){
+ const box=document.getElementById("robotView");if(!box)return;
+ const r=robotViewState;
+ if(!showRobotTrades || !r || r.status!=="ACTIVE" || robotPositionClosed(r) || String(r.positionId||"")===robotViewDismissedPositionId){box.className="robotView off";return}
+ const m=viewerRobotMetrics(r);
+ const st=m.signal==="SAT"?"SAT":(m.now>m.entry&&m.peak>m.entry?"TIRMANIYOR":"IZLIYOR");
+ box.className="robotView "+(st==="SAT"?"sell":st==="TIRMANIYOR"?"climb":"watch");
+ document.getElementById("rvStatus").textContent=st;
+ document.getElementById("rvEntry").textContent=rvNum(r.entryPrice);
+ document.getElementById("rvQty").textContent=Number(r.quantity||0).toLocaleString("tr-TR");
+ const now=m.now,pnl=m.pnl,pct=m.pct;
+ document.getElementById("rvNow").textContent=rvNum(now);
+ document.getElementById("rvPnl").textContent=Number.isFinite(pnl)?`${pnl>=0?"+":""}${pnl.toLocaleString("tr-TR",{maximumFractionDigits:0})} TL (${pct>=0?"+":""}${pct.toFixed(2)}%)`:"—";
+ document.getElementById("rvPeak").textContent=rvNum(m.peak);
+ document.getElementById("rvStop").textContent=rvNum(m.stop);
+ document.getElementById("rvSignal").textContent=m.signal==="SAT"?`${rvNum(now)} CANLI`:"—";
+}
+function setupRobotWindow(){
+ const box=document.getElementById("robotView"),head=box?.querySelector(".rvHead"),close=document.getElementById("rvClose");
+ if(!box||!head)return;
+ try{const p=JSON.parse(localStorage.getItem("TraderF_robotWindowPos")||"null");if(p&&Number.isFinite(p.left)&&Number.isFinite(p.top)){box.style.left=`${p.left}px`;box.style.top=`${p.top}px`}}catch(e){}
+ close?.addEventListener("click",e=>{e.stopPropagation();robotViewDismissedPositionId=String(robotViewState?.positionId||"");box.className="robotView off"});
+ let drag=false,dx=0,dy=0;
+ head.addEventListener("pointerdown",e=>{if(e.target===close)return;drag=true;const r=box.getBoundingClientRect(),pr=box.offsetParent?.getBoundingClientRect()||{left:0,top:0};dx=e.clientX-r.left;dy=e.clientY-r.top;head.setPointerCapture?.(e.pointerId);e.preventDefault()});
+ head.addEventListener("pointermove",e=>{if(!drag)return;const pr=box.offsetParent?.getBoundingClientRect()||{left:0,top:0},maxL=Math.max(0,(box.offsetParent?.clientWidth||innerWidth)-box.offsetWidth),maxT=Math.max(0,(box.offsetParent?.clientHeight||innerHeight)-box.offsetHeight);box.style.left=`${Math.max(0,Math.min(maxL,e.clientX-pr.left-dx))}px`;box.style.top=`${Math.max(0,Math.min(maxT,e.clientY-pr.top-dy))}px`});
+ const stop=()=>{if(!drag)return;drag=false;localStorage.setItem("TraderF_robotWindowPos",JSON.stringify({left:parseFloat(box.style.left)||0,top:parseFloat(box.style.top)||0}))};
+ head.addEventListener("pointerup",stop);head.addEventListener("pointercancel",stop);
+}
+function sse(path,onData){
+ const url=`${String(path).startsWith("http")?path:`${DBROOT}${path}`}.json`;
+ const es=new EventSource(url);
+ const apply=ev=>{try{const msg=JSON.parse(ev.data||"{}");onData(msg.path||"/",msg.data)}catch(e){console.warn("Robot canlı veri çözülemedi",e)}};
+ es.addEventListener("put",apply);
+ es.addEventListener("patch",apply);
+ es.onerror=()=>{const live=document.getElementById("live");if(live)live.textContent="Robot bağlantısı yenileniyor…"};
+ currentStreams.push(es);
+ return es;
+}
+async function bindRobotView(sym,myGen){
+ const base=`${DBROOT}/ROBOT/fuat/${encodeURIComponent(sym)}`;
+ try{
+   robotViewState=await restJson(`${base}/state.json`);
+   robotViewHistory=await restJson(`${base}/history.json`)||{};
+   if(myGen===bindGeneration&&sym===activeSymbol){renderRobotView();renderChart();}
+ }catch(e){}
+ sse(`${base}/state`,(p,d)=>{
+   if(myGen!==bindGeneration||sym!==activeSymbol)return;
+   robotViewState=applyPartial(robotViewState,p,d);renderRobotView();renderChart();
+ });
+ sse(`${base}/history`,(p,d)=>{
+   if(myGen!==bindGeneration||sym!==activeSymbol)return;
+   robotViewHistory=applyPartial(robotViewHistory,p,d)||{};renderChart();
+ });
+ /* Local-file tarayıcılarında Firebase SSE gecikebilir/kesilebilir.
+    Robot için bağımsız 1 sn REST kontrolü F5 ihtiyacını kaldırır. */
+ let robotPollBusy=false;
+ const robotPoll=async()=>{
+   if(robotPollBusy||myGen!==bindGeneration||sym!==activeSymbol)return;
+   robotPollBusy=true;
+   try{await refreshRobotViewData(sym,myGen)}finally{robotPollBusy=false}
+ };
+ const robotPollId=setInterval(robotPoll,1000);
+ currentStreams.push({close:()=>clearInterval(robotPollId)});
+}
+async function refreshRobotViewData(sym,myGen){
+ const base=`${DBROOT}/ROBOT/fuat/${encodeURIComponent(sym)}`;
+ const [st,hi]=await Promise.allSettled([restJson(`${base}/state.json`),restJson(`${base}/history.json`)]);
+ if(myGen!==bindGeneration||sym!==activeSymbol)return;
+ if(st.status==="fulfilled")robotViewState=st.value;
+ if(hi.status==="fulfilled")robotViewHistory=hi.value||{};
+ renderRobotView();
+ renderChart();
+}
 
 function closeSymbolStreams(){
   currentStreams.forEach(x=>{try{x.close()}catch(e){}});
@@ -687,35 +1737,37 @@ function applyPartial(base,data,path){
 
 async function loadSymbols(){
   try{
-    const r=await fetch(`${DBROOT}/BIST.json`);
+    // BIST'in tüm ağır verisini indirme; sadece sembol anahtarlarını al.
+    const r=await fetch(`${DBROOT}/BIST.json?shallow=true`,{cache:"no-store"});
     const data=await r.json();
-    const symbols=Object.entries(data||{})
-      .filter(([k,v])=>v && typeof v==="object" && v.current)
-      .map(([k])=>k)
-      .sort((a,b)=>a.localeCompare(b,"tr"));
+    const symbols=Object.keys(data||{}).sort((a,b)=>a.localeCompare(b,"tr"));
 
     const sel=document.getElementById("symbolSelect");
     if(!sel)return;
-    const previous=activeSymbol;
-    sel.innerHTML="";
-    symbols.forEach(s=>{
-      const o=document.createElement("option");
-      o.value=s;o.textContent=s;
-      sel.appendChild(o);
-    });
 
-    if(symbols.includes(previous)) sel.value=previous;
-    else if(symbols.length){
-      activeSymbol=symbols[0];
-      sel.value=activeSymbol;
-      bindSymbol(activeSymbol);
+    // Liste değişmediyse COMBOBOX'A HİÇ DOKUNMA.
+    // Eski 5 sn yenilemesinin kullanıcı seçimini ezmesini önler.
+    const old=[...sel.options].map(o=>o.value);
+    const same=old.length===symbols.length && old.every((x,i)=>x===symbols[i]);
+
+    if(!same){
+      const keep=sel.value || activeSymbol;
+      sel.innerHTML="";
+      symbols.forEach(s=>{
+        const o=document.createElement("option");
+        o.value=s;o.textContent=s;sel.appendChild(o);
+      });
+      if(symbols.includes(keep)) sel.value=keep;
+      else if(symbols.includes(activeSymbol)) sel.value=activeSymbol;
+      else if(symbols.length) sel.value=symbols[0];
     }
 
     const st=document.getElementById("symbolStatus");
     if(st)st.textContent=symbols.length?`${symbols.length} aktif hisse`:"Aktif hisse bekleniyor";
-  }catch(e){}
+  }catch(e){
+    console.warn("Sembol listesi okunamadı",e);
+  }
 }
-
 
 
 function renderDayInfo(){
@@ -755,95 +1807,110 @@ function renderTrades(){
 }
 
 function renderBrokerNet(){
-  const entries=(Array.isArray(brokerNet)
-    ? brokerNet.filter(Boolean).map(x=>({
+  const source=brokerWindowNet||brokerNet;
+  const entries=(Array.isArray(source)
+    ? source.filter(Boolean).map(x=>({
         name:x?.name||"",
         buy:Number(x?.buy)||0,
         sell:Number(x?.sell)||0,
+        buyAvg:Number(x?.buyAvg)||((Number(x?.buy)||0)>0?(Number(x?.buyValue)||0)/(Number(x?.buy)||1):0),
+        sellAvg:Number(x?.sellAvg)||((Number(x?.sell)||0)>0?(Number(x?.sellValue)||0)/(Number(x?.sell)||1):0),
         net:Number(x?.net)||0
       }))
-    : Object.entries(brokerNet||{}).map(([name,x])=>({
-        name,buy:Number(x?.buy)||0,sell:Number(x?.sell)||0,net:Number(x?.net)||0
+    : Object.entries(source||{}).map(([name,x])=>({
+        name,buy:Number(x?.buy)||0,sell:Number(x?.sell)||0,
+        buyAvg:(Number(x?.buy)||0)>0?(Number(x?.buyValue)||0)/(Number(x?.buy)||1):0,
+        sellAvg:(Number(x?.sell)||0)>0?(Number(x?.sellValue)||0)/(Number(x?.sell)||1):0,
+        net:Number(x?.net)||0
       }))
   ).filter(x=>x.name);
+
   const buyers=entries.filter(x=>x.net>0).sort((a,b)=>b.net-a.net);
   const sellers=entries.filter(x=>x.net<0).sort((a,b)=>a.net-b.net);
 
-  const row=(x,cls)=>`<tr>
+  const brow=x=>`<tr>
     <td title="${x.name}">${x.name}</td>
-    <td>${fmtQ(x.buy)}</td><td>${fmtQ(x.sell)}</td>
-    <td class="${cls}">${x.net>0?"+":""}${fmtQ(x.net)}</td>
+    <td>${fmtBrokerP(x.buyAvg)}</td>
+    <td class="netPos">+${fmtBrokerQ(x.net)}</td>
+  </tr>`;
+  const srow=x=>`<tr>
+    <td title="${x.name}">${x.name}</td>
+    <td>${fmtBrokerP(x.sellAvg)}</td>
+    <td class="netNeg">${fmtBrokerQ(x.net)}</td>
   </tr>`;
 
   const b=document.getElementById("netBuyers"),s=document.getElementById("netSellers");
-  if(b)b.innerHTML=buyers.map(x=>row(x,"netPos")).join("");
-  if(s)s.innerHTML=sellers.map(x=>row(x,"netNeg")).join("");
+  if(b)b.innerHTML=buyers.map(brow).join("");
+  if(s)s.innerHTML=sellers.map(srow).join("");
 }
 
-async function bindSymbol(sym){
-  const chartEl=document.getElementById("chart");
-  if(chartEl) chartEl.innerHTML="";
-  if(!sym)return;
-  activeSymbol=sym;
-  closeSymbolStreams();
-  current=null;chartDay=[];tradesRecent=[];brokerNet={};dayData=null;chartOffset=0;
-  lastLadderBid=null;lastLadderTick=null;
 
-  const title=document.getElementById("activeSymbolTitle");
-  if(title)title.textContent=sym;
 
+function tradeMs(t){
+  const direct=Date.parse(t?.capturedAt||t?.timestamp||t?.datetime||"");
+  if(Number.isFinite(direct))return direct;
+  const tm=String(t?.time||"").trim();
+  const m=/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(tm);
+  if(!m)return NaN;
+  const now=new Date();
+  const d=new Date(now.getFullYear(),now.getMonth(),now.getDate(),Number(m[1]),Number(m[2]),Number(m[3]||0),0);
+  return d.getTime();
+}
+function buildBrokerNetFromTrades(rows,hours=null){
+  const all=(Array.isArray(rows)?rows:Object.values(rows||{})).filter(Boolean);
+  const cutoff=(hours==null||hours==="day")?0:(Date.now()-Number(hours)*3600000), net={};
+  for(const t of all){
+    const ms=tradeMs(t);
+    if(!Number.isFinite(ms)||ms<cutoff)continue;
+    const qty=Number(t.qty)||0,price=Number(t.price)||0;if(!(qty>0&&price>0))continue;
+    const buyer=String(t.buyer||"").trim(),seller=String(t.seller||"").trim();
+    if(buyer){const x=net[buyer]||(net[buyer]={buy:0,sell:0,buyValue:0,sellValue:0,net:0});x.buy+=qty;x.buyValue+=qty*price;x.net=x.buy-x.sell;}
+    if(seller){const x=net[seller]||(net[seller]={buy:0,sell:0,buyValue:0,sellValue:0,net:0});x.sell+=qty;x.sellValue+=qty*price;x.net=x.buy-x.sell;}
+  }
+  return net;
+}
+async function refreshBrokerWindow(forceReload=false){
+  const label=document.getElementById("brokerWindowLabel");
+  if(label)label.textContent=brokerWindow==="day"?"(Tüm Gün)":`(Son ${brokerWindow} Saat)`;
+
+  // Option değişiminde ağ bekleme yok: eldeki tradesDay ile anında yeniden hesapla.
+  brokerWindowNet=buildBrokerNetFromTrades(tradesDayCache,brokerWindow);
+  renderBrokerNet();
+
+  if(!forceReload||brokerWindowLoading)return;
+  brokerWindowLoading=true;
   try{
-    const [rc,rg,rd,rt,rn]=await Promise.all([
-      fetch(`${DBROOT}/BIST/${encodeURIComponent(sym)}/current.json`),
-      fetch(`${DBROOT}/BIST/${encodeURIComponent(sym)}/chartDay.json`),
-      fetch(`${DBROOT}/BIST/${encodeURIComponent(sym)}/day.json`),
-      fetch(`${DBROOT}/BIST/${encodeURIComponent(sym)}/tradesRecent.json`),
-      fetch(`${DBROOT}/BIST/${encodeURIComponent(sym)}/brokerNet.json`)
-    ]);
-    current=await rc.json();
-    const dayChart=await rg.json();
-    chartDay=Array.isArray(dayChart)?dayChart.filter(Boolean):[];
-    dayData=await rd.json();
-    const tr=await rt.json(),bn=await rn.json();
-    tradesRecent=Array.isArray(tr)?tr.filter(Boolean):[];
-    brokerNet=(bn&&typeof bn==="object")?bn:{};
-    renderBook();renderDayInfo();renderChart();renderTrades();renderBrokerNet();
-  }catch(e){}
-
-  openSymbolStream("current",(d,path)=>{
-    current=applyPartial(current,d,path);
-    detectLadderMove();
-    renderBook();renderDayInfo();renderChart();
-  });
-
-  openSymbolStream("chartDay",(d,path)=>{
-    const wasLive=(chartOffset===0);
-    chartDay=applyPartial(chartDay,d,path)||[];
-    if(wasLive) chartOffset=0;
-    renderChart();
-  });
-
-  openSymbolStream("day",(d,path)=>{
-    dayData=applyPartial(dayData,d,path);
-    renderDayInfo();
-    renderChart();
-  });
-
-  openSymbolStream("tradesRecent",(d,path)=>{
-    tradesRecent=applyPartial(tradesRecent,d,path)||[];
-    renderTrades();
-  });
-
-  openSymbolStream("brokerNet",(d,path)=>{
-    brokerNet=applyPartial(brokerNet,d,path)||{};
+    const d=await restJson(`${DBROOT}/BIST/${encodeURIComponent(activeSymbol)}/tradesDay.json`);
+    tradesDayCache=(Array.isArray(d)?d:Object.values(d||{})).filter(Boolean);
+    tradesDayLastLoad=Date.now();
+    tradesDayReady=true;
+    brokerWindowNet=buildBrokerNetFromTrades(tradesDayCache,brokerWindow);
     renderBrokerNet();
-  });
-
+    renderChart();
+  }catch(e){console.warn("Kurum pencere verisi okunamadı",e)}finally{brokerWindowLoading=false;}
 }
 
+async function restJson(url){const r=await fetch(url,{cache:"no-store"});if(!r.ok)throw new Error("HTTP_"+r.status);return r.json();}
+async function loadMomentumTf(sym,tf,myGen=bindGeneration){try{const d=await restJson(`${DBROOT}/BIST/${encodeURIComponent(sym)}/momentum/history/${tf}.json`);if(myGen!==bindGeneration||sym!==activeSymbol)return;momentumHistoryByTf[tf]=Array.isArray(d)?d.filter(Boolean):Object.values(d||{}).filter(Boolean);renderMomentum();}catch(e){}}
+async function loadPortalTf(sym,tf,myGen=bindGeneration){try{const d=await restJson(`${DBROOT}/BIST/${encodeURIComponent(sym)}/portalHistory/${tf}.json`);if(myGen!==bindGeneration||sym!==activeSymbol)return;portalHistoryByTf[tf]=Array.isArray(d)?d.filter(Boolean):[];chartOffset=0;renderChart();}catch(e){}}
+async function pollSlowData(sym,myGen){if(myGen!==bindGeneration||sym!==activeSymbol)return;const b=`${DBROOT}/BIST/${encodeURIComponent(sym)}`;
+if(Date.now()-tradesDayLastLoad>15000){restJson(`${b}/tradesDay.json`).then(d=>{if(myGen===bindGeneration){mergeTradesIntoDay(d);tradesDayReady=true;brokerWindowNet=buildBrokerNetFromTrades(tradesDayCache,brokerWindow);renderBrokerNet();renderChart();}}).catch(()=>{});}
+await Promise.allSettled([restJson(`${b}/chartDay.json`).then(d=>{if(myGen===bindGeneration){chartDay=Array.isArray(d)?d.filter(Boolean):[];updateLiveCandleFromCurrent();renderChart();}}),restJson(`${b}/day.json`).then(d=>{if(myGen===bindGeneration){dayData=d;renderDayInfo();renderChart();}}),restJson(`${b}/brokerNet.json`).then(d=>{if(myGen===bindGeneration){brokerNet=(d&&typeof d==="object")?d:{};renderBrokerNet();}}),restJson(`${b}/liveFlow.json`).then(d=>{if(myGen===bindGeneration){liveFlow=d||{};const h=document.getElementById("flowHealth");if(h)h.textContent=`Son işlem ${liveFlow.lastTradeTime||"-"} | Akış ${liveFlow.updatedAt?String(liveFlow.updatedAt).slice(11,19):"-"}`;}}),refreshRobotViewData(sym,myGen)]);}
+async function bindSymbol(sym){
+ if(!sym)return;const myGen=++bindGeneration;activeSymbol=sym;closeSymbolStreams();if(pollTimer){clearInterval(pollTimer);pollTimer=null;}if(liveDerivedTimer){clearTimeout(liveDerivedTimer);liveDerivedTimer=null;} const liveEl=document.getElementById("live");if(liveEl)liveEl.textContent="Bağlanıyor…";
+ current=null;chartDay=[];portalHistoryByTf={1:[],5:[],10:[]};momentumHistoryByTf={1:[],5:[],10:[]};tradesRecent=[];brokerNet={};brokerWindowNet=null;tradesDayCache=[];tradesDayLastLoad=0;tradesDayReady=false;dayData=null;chartOffset=0;MOM_OFFSET=0;lastLadderBid=null;lastLadderTick=null;v359PrevDepth=new Map();
+ const title=document.getElementById("activeSymbolTitle");if(title)title.textContent=sym;const base=`${DBROOT}/BIST/${encodeURIComponent(sym)}`;
+ robotViewState=null;robotViewHistory={};renderRobotView();
+ bindRobotView(sym,bindGeneration);
+ Promise.allSettled([restJson(`${base}/current.json`).then(d=>{if(myGen===bindGeneration){current=d;updateLiveCandleFromCurrent();detectLadderMove();renderBook();renderDayInfo();renderChart();}}),restJson(`${base}/tradesRecentLive.json`).then(d=>{if(myGen===bindGeneration){tradesRecent=normalizeTradeRows(d);mergeTradesIntoDay(tradesRecent);brokerWindowNet=buildBrokerNetFromTrades(tradesDayCache,brokerWindow);renderTrades();renderBrokerNet();renderChart();}}),restJson(`${base}/tradesDay.json`).then(d=>{if(myGen===bindGeneration){mergeTradesIntoDay(d);tradesDayReady=true;brokerWindowNet=buildBrokerNetFromTrades(tradesDayCache,brokerWindow);renderBrokerNet();renderChart();}}),pollSlowData(sym,myGen),loadPortalTf(sym,1,myGen),loadPortalTf(sym,5,myGen),loadPortalTf(sym,10,myGen),loadMomentumTf(sym,1,myGen),loadMomentumTf(sym,5,myGen),loadMomentumTf(sym,10,myGen)]);
+ openSymbolStream("current",(d,path)=>{if(myGen!==bindGeneration)return;current=applyPartial(current,d,path);updateLiveCandleFromCurrent();detectLadderMove();renderBook();renderDayInfo();renderRobotView();scheduleChartRender();const l=document.getElementById("live");if(l)l.textContent="● Realtime bağlı";});
+ openSymbolStream("tradesRecentLive",(d,path)=>{if(myGen!==bindGeneration)return;tradesRecent=normalizeTradeRows(applyPartial(tradesRecent,d,path)||[]);renderTrades();scheduleLiveDerived();});
+ openSymbolStream("momentum/history",(d,path)=>{if(myGen!==bindGeneration)return;const obj=applyPartial(momentumHistoryByTf,d,path);if(obj&&typeof obj==="object"){for(const tf of [1,5,10]){const x=obj[tf]??obj[String(tf)];if(x)momentumHistoryByTf[tf]=Array.isArray(x)?x.filter(Boolean):Object.values(x||{}).filter(Boolean);}}renderMomentum();});
+ pollTimer=setInterval(()=>pollSlowData(sym,myGen),3000);
+}
 
 function moveChartHistory(delta){
-  const maxOffset=Math.max(0,(chartDay?.length||0)-VISIBLE_CANDLES);
+  const maxOffset=Math.max(0,selectedTfCandles().length-VISIBLE_CANDLES);
   chartOffset=Math.max(0,Math.min(maxOffset,chartOffset+delta));
   renderChart();
 }
@@ -889,17 +1956,290 @@ function setupChartNavigation(){
   C.addEventListener("touchend",stop,{passive:true});
 }
 
-document.addEventListener("DOMContentLoaded",()=>{
+async function buildCgptAnalysisCopy(){const btn=document.getElementById("cgptCopyBtn"),old=btn?.textContent;if(btn){btn.disabled=true;btn.textContent="Veriler hazırlanıyor…";}try{const shallow=await restJson(`${DBROOT}/BIST.json?shallow=true`),symbols=Object.keys(shallow||{}).sort(),rows=[];for(const sym of symbols){const b=`${DBROOT}/BIST/${encodeURIComponent(sym)}`;const [cu,dy,bn,tm,pm]=await Promise.all([restJson(`${b}/current.json`).catch(()=>null),restJson(`${b}/day.json`).catch(()=>null),restJson(`${b}/brokerNet.json`).catch(()=>null),restJson(`${b}/tradesMeta.json`).catch(()=>null),restJson(`${b}/portalHistoryMeta.json`).catch(()=>null)]);const px=Number(cu?.mid??cu?.bestBid??cu?.bestAsk)||0,pc=Number(dy?.previousClose)||0,pct=px>0&&pc>0?(px/pc-1)*100:null,buy=Number(cu?.totals?.buyQty)||0,sell=Number(cu?.totals?.sellQty)||0;const nets=(Array.isArray(bn)?bn:Object.entries(bn||{}).map(([name,x])=>({name,...x}))).map(x=>({name:x.name||"",net:Number(x.net)||0,buyAvg:Number(x.buyAvg)||0,sellAvg:Number(x.sellAvg)||0})).sort((a,b)=>Math.abs(b.net)-Math.abs(a.net)).slice(0,6);rows.push({symbol:sym,price:px,dayPct:pct,buyQty:buy,sellQty:sell,orderDirection:Number(cu?.orderDirection)||0,direction:cu?.direction||null,vwap:Number(tm?.vwap)||0,cvd:Number(tm?.cvd)||0,brokerTop:nets,historyMeta:pm||null,momentum:cu?.momentum||null});}const active={symbol:activeSymbol,timeframe:chartTimeframe,current,day:dayData,brokerNet,tradesRecent:(tradesRecent||[]).slice(-200),portalHistory:{1:(portalHistoryByTf[1]||[]).slice(-120),5:(portalHistoryByTf[5]||[]).slice(-120),10:(portalHistoryByTf[10]||[]).slice(-120)},chartDay:(chartDay||[]).slice(-240)};const prompt=`TraderF canlı verilerimi analiz et. Takip ettiğim hisseleri kısa vadeli/hızlı al-sat açısından karşılaştır. Günlük yüzdeyi tek başına kullanma; 1/5/10 dk fiyat yapısı, VWAP, Delta/CVD, destek-dirence konum, emir dengesi, kurum net ve kurum ortalama fiyatlarını birlikte değerlendir. Eksik/geç başlayan verileri belirt. Önce tüm hisseler için kompakt karşılaştırmalı tablo, sonra aktif ${activeSymbol} için ayrıntılı yorum ver. Kesinlik iddiası kullanma.\n\nAKTİF HİSSE:\n${JSON.stringify(active)}\n\nTAKİP LİSTESİ:\n${JSON.stringify(rows)}`;await navigator.clipboard.writeText(prompt);if(btn)btn.textContent="✓ Kopyalandı";setTimeout(()=>{if(btn){btn.textContent=old;btn.disabled=false;}},1400);}catch(e){console.error("CGPT COPY HATA",e);if(btn){btn.textContent="Kopyalama hatası";btn.disabled=false;setTimeout(()=>btn.textContent=old,1600);}}}
+
+document.addEventListener("DOMContentLoaded",async()=>{
   setupChartNavigation();
+  setupRobotWindow();
+  const cgptBtn=document.getElementById("cgptCopyBtn");if(cgptBtn)cgptBtn.addEventListener("click",buildCgptAnalysisCopy);
+
+  const vwapToggle=document.getElementById("vwapToggle");
+  if(vwapToggle){vwapToggle.checked=showVWAP;vwapToggle.addEventListener("change",()=>{showVWAP=vwapToggle.checked;renderChart();});}
+  const cvdToggle=document.getElementById("cvdToggle");
+  if(cvdToggle){cvdToggle.checked=showCvdDelta;cvdToggle.addEventListener("change",()=>{showCvdDelta=cvdToggle.checked;renderChart();});}
+  const trendToggle=document.getElementById("trendToggle");
+  if(trendToggle){trendToggle.checked=showTrendLines;trendToggle.addEventListener("change",()=>{showTrendLines=trendToggle.checked;renderChart();});}
+  const srToggle=document.getElementById("srToggle");
+  if(srToggle){
+    srToggle.checked=showSupportResistance;
+    srToggle.addEventListener("change",()=>{
+      showSupportResistance=srToggle.checked;
+      renderChart();
+    });
+  }
+
+  const rtToggle=document.getElementById("robotTradesToggle");
+  if(rtToggle){rtToggle.checked=showRobotTrades;rtToggle.addEventListener("change",()=>{showRobotTrades=rtToggle.checked;if(showRobotTrades)robotViewDismissedPositionId="";renderRobotView();renderChart();});}
+  const pcToggle=document.getElementById("prevCloseToggle");
+  if(pcToggle){
+    pcToggle.checked=showPreviousClose;
+    pcToggle.addEventListener("change",()=>{showPreviousClose=pcToggle.checked;renderChart();});
+  }
+  const yIn=document.getElementById("yZoomIn");
+  const yOut=document.getElementById("yZoomOut");
+  const yAuto=document.getElementById("yZoomAuto");
+  if(yIn)yIn.addEventListener("click",()=>{chartYZoom=Math.min(4,chartYZoom*1.25);renderChart();});
+  if(yOut)yOut.addEventListener("click",()=>{chartYZoom=Math.max(.35,chartYZoom/1.25);renderChart();});
+  if(yAuto)yAuto.addEventListener("click",()=>{chartYZoom=1;renderChart();});
+
+  const tfSel=document.getElementById("timeframeSelect");
+  if(tfSel){
+    tfSel.value=String(chartTimeframe);
+    tfSel.addEventListener("change",()=>{
+      chartTimeframe=Math.max(1,Number(tfSel.value)||1);
+      chartOffset=0;
+      loadPortalTf(activeSymbol,chartTimeframe);
+      loadMomentumTf(activeSymbol,chartTimeframe);
+      renderChart();
+    });
+  }
+
   const sel=document.getElementById("symbolSelect");
-  if(sel)sel.addEventListener("change",()=>bindSymbol(sel.value));
-  loadSymbols().then(()=>{
-    const s=document.getElementById("symbolSelect");
-    if(s && s.value)bindSymbol(s.value);
-  });
-  symbolListTimer=setInterval(loadSymbols,5000);
+
+  let lastSelectValue="";
+  const choose=()=>{
+    const sym=sel?.value;
+    if(!sym || sym===lastSelectValue && sym===activeSymbol)return;
+    lastSelectValue=sym;
+    // Event anında başlığı değiştir: tıklamanın tetiklendiği gözle görülür.
+    activeSymbol=sym;
+    const title=document.getElementById("activeSymbolTitle");
+    if(title)title.textContent=sym;
+    bindSymbol(sym);
+  };
+
+  if(sel){
+    sel.addEventListener("change",choose);
+    // Bazı mobil tarayıcılarda select "input" olayı change'den önce/daha güvenilir gelir.
+    sel.addEventListener("input",choose);
+  }
+
+  bindMomentumRadar();
+bindSymbol(activeSymbol);
+  loadSymbols().then(()=>{if(sel&&[...sel.options].some(o=>o.value===activeSymbol))sel.value=activeSymbol;lastSelectValue=activeSymbol;});
+
+  // Sembol listesi sık değişmez; 5 sn yerine 60 sn ve liste aynıysa DOM'a dokunmuyor.
+  symbolListTimer=setInterval(loadSymbols,60000);
 });
 
 </script>
 </body>
 </html>
+<style>
+#status,#symbolStatus,#cgptCopyBtn{display:none!important}
+#lastDataTime{font-variant-numeric:tabular-nums}
+</style>
+
+<style>
+.qtyFlashSell{animation:qtySellFlash 1s ease-out}
+.qtyFlashBuy{animation:qtyBuyFlash 1s ease-out}
+@keyframes qtySellFlash{0%,70%{background:#ffd9df}100%{background:transparent}}
+@keyframes qtyBuyFlash{0%,70%{background:#dff7e7}100%{background:transparent}}
+#ladder .price{text-align:center!important;font-weight:400!important}
+</style>
+
+<style>
+<style>
+#momentumChart{cursor:ew-resize;touch-action:pan-y}
+.momRollInfo{
+ position:absolute;right:8px;bottom:5px;z-index:40;
+ font:10px Arial;color:#555;background:rgba(255,255,255,.94);
+ border:1px solid #ccd3d8;border-radius:3px;padding:2px 5px;
+}
+</style>
+
+
+<style>
+/* V30.28: Momentum ekseni yukarı, -100 altı Son Aday radarı */
+.momRadar{
+ position:absolute;left:5px;right:5px;bottom:5px;height:112px;z-index:30;
+ box-sizing:border-box;border-top:1px solid #aeb7bf;background:#fff;
+ font:10px Arial;color:#222;overflow:hidden;
+}
+.momRadarTitle{height:22px;line-height:22px;font-weight:700;font-size:11px}
+.momRadarHead{
+ display:grid;grid-template-columns:.75fr .75fr 1fr .8fr 1fr .8fr .9fr .9fr;
+ gap:3px;padding:3px 4px;border-top:1px solid #e0e4e7;border-bottom:1px solid #d3d8dc;
+ background:#f4f6f7;font-weight:700;white-space:nowrap;
+}
+.momRadarBody{height:68px;overflow-y:auto}
+.momRadarRow{display:grid;grid-template-columns:.75fr .75fr 1fr .8fr 1fr .8fr .9fr .9fr;gap:3px;padding:2px 4px;border-bottom:1px solid #edf0f2;white-space:nowrap}
+.momRadarEmpty{padding:10px 5px;color:#777;text-align:center}
+</style>
+
+<style>
+/* V36.5 — Dört ana frame eşit boyut */
+.main{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:flex-start!important;
+  align-content:flex-start!important;
+  gap:4px!important;
+  width:100%!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+  overflow:visible!important;
+}
+.bookPanel,.chartPanel,.momentumPanel,.tradePanel{
+  width:510px!important;
+  min-width:510px!important;
+  max-width:510px!important;
+  height:548px!important;
+  min-height:548px!important;
+  max-height:548px!important;
+  flex:0 0 510px!important;
+  box-sizing:border-box!important;
+}
+
+/* Eski momentum çalışma alanı: 12 geniş kolon + radar */
+.momentumPanel{overflow:hidden!important}
+#momentumChart{
+  width:100%!important;
+  height:523px!important;
+  min-height:523px!important;
+  max-height:523px!important;
+  position:relative!important;
+  overflow:hidden!important;
+  background:#fff!important;
+  cursor:ew-resize!important;
+  touch-action:pan-y!important;
+}
+
+/* Grafik de eşit frame içinde taşmadan çalışsın */
+.chartPanel .right{
+  height:523px!important;
+  min-height:0!important;
+}
+#chart{min-width:0!important}
+#cvdChart{height:116px!important;flex:0 0 116px!important}
+
+/* İşlem geçmişinin mevcut içeriği korunur; sadece dış frame eşitlenir. */
+.tradePanel{overflow:hidden!important}
+
+/* Ekrana sığmayan frame otomatik alt satıra geçer. */
+@media(max-width:520px){
+  .bookPanel,.chartPanel,.momentumPanel,.tradePanel{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    flex:0 0 100%!important;
+  }
+}
+</style>
+
+<style>
+/* V36.5 — Grafik için doğru genişlik; dört ana frame aynı ölçü */
+.main{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:flex-start!important;
+  align-content:flex-start!important;
+  gap:4px!important;
+  width:100%!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+  overflow:visible!important;
+}
+
+.bookPanel,.chartPanel,.momentumPanel,.tradePanel{
+  width:680px!important;
+  min-width:680px!important;
+  max-width:680px!important;
+  height:548px!important;
+  min-height:548px!important;
+  max-height:548px!important;
+  flex:0 0 680px!important;
+  box-sizing:border-box!important;
+}
+
+/* Grafik eski rahat çalışma genişliğine döndü */
+.chartPanel .right{
+  height:523px!important;
+  min-height:0!important;
+}
+#chart{
+  width:100%!important;
+  min-width:0!important;
+}
+#cvdChart{
+  width:100%!important;
+  height:116px!important;
+  flex:0 0 116px!important;
+}
+
+/* Momentum aynı genişliği kullanır; eski motor aynen korunur */
+.momentumPanel{overflow:hidden!important}
+#momentumChart{
+  width:100%!important;
+  height:523px!important;
+  min-height:523px!important;
+  max-height:523px!important;
+  position:relative!important;
+  overflow:hidden!important;
+}
+
+/* Emir defteri iç yapısı büyümez; geniş frame içinde eski yerleşimini korur */
+.bookPanel{overflow:hidden!important}
+
+/* İşlem geçmişinin iç yapısı değişmez, sadece dış frame eşitlenir */
+.tradePanel{overflow:hidden!important}
+
+/* Ekrana sığmayan frame'ler alt satıra geçer */
+@media(max-width:700px){
+  .bookPanel,.chartPanel,.momentumPanel,.tradePanel{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    flex:0 0 100%!important;
+  }
+}
+</style>
+
+<style>
+.chartPanel .right{position:relative!important}
+.robotView{position:absolute;left:7px;top:34px;width:174px;z-index:25;background:rgba(255,255,255,.95);border:1px solid #777;font:10px Arial;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.robotView.off{display:none}
+.rvHead{height:22px;display:flex;align-items:center;gap:6px;padding:0 4px 0 6px;border-bottom:1px solid #aaa;cursor:move;user-select:none;touch-action:none}
+.rvHead #rvStatus{margin-left:auto}.rvHead #rvClose{width:18px;height:18px;padding:0;border:0;background:transparent;color:#555;font:bold 15px/18px Arial;cursor:pointer}
+.rvGrid{display:grid;grid-template-columns:66px 1fr;gap:3px 5px;padding:6px}
+.rvGrid span{color:#555}.rvGrid b{text-align:right;font-variant-numeric:tabular-nums}
+.robotView.watch .rvHead{background:#e8f4ff}.robotView.climb .rvHead{background:#e0f7e7}.robotView.sell .rvHead{background:#ffdfe2;color:#c41218}
+</style>
+
+<style>
+/* V36.6 — kompakt masaüstü yerleşimi; fiyat grafiğinin 680px ölçüsü korunur. */
+@media(min-width:701px){
+  .main{gap:3px!important}
+  .bookPanel{width:512px!important;min-width:512px!important;max-width:512px!important;flex:0 0 512px!important}
+  .chartPanel{width:680px!important;min-width:680px!important;max-width:680px!important;flex:0 0 680px!important}
+  .momentumPanel{width:420px!important;min-width:420px!important;max-width:420px!important;flex:0 0 420px!important}
+  .tradePanel{width:350px!important;min-width:350px!important;max-width:350px!important;flex:0 0 350px!important}
+
+  .momentumPanel .head,.tradePanel .head{font-size:10px;padding-left:4px;padding-right:4px}
+  .momLegend{font-size:7px!important;left:43px!important;padding:1px!important}
+  .momTop{font-size:7px!important;line-height:8px!important}
+  .momTime{font-size:7px!important}
+  .momCandidate{font-size:8px!important;padding:2px 3px!important}
+  .momRadarTitle,.momRadarHead,.momRadarRow{font-size:8px!important}
+  .momRadarHead,.momRadarRow{gap:1px!important;padding-left:2px!important;padding-right:2px!important}
+
+  .tradeBody{padding:2px!important;gap:2px!important}
+  .tradeSub{font-size:9px!important;padding:4px 3px!important}
+  .tradeTable,.brokerTable{font-size:8px!important}
+  .tradeTable th,.tradeTable td,.brokerTable th,.brokerTable td{padding:2px 1px!important}
+  .tradeTable th:nth-child(1),.tradeTable td:nth-child(1){width:42px!important}
+  .tradeTable th:nth-child(2),.tradeTable td:nth-child(2){width:43px!important}
+  .tradeTable th:nth-child(3),.tradeTable td:nth-child(3){width:52px!important}
+  .brokerControls{font-size:9px!important;gap:5px!important}
+}
+</style>
